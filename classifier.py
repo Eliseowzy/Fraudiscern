@@ -1,6 +1,5 @@
 import pandas as pd
 from utils import logger
-from Interface import random_forest_classifier as rand_forest_cls
 
 _data_set = None
 _model = None

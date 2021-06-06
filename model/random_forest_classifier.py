@@ -1,8 +1,10 @@
-from Interface.model_interface import ModelInterface
 from sklearn.ensemble import RandomForestClassifier
 
+from utils import data_loader
+from interface.model_interface import model_interface
 
-class RandomForestClassifierModel(ModelInterface):
+
+class RandomForestClassifierModel(model_interface):
     """
     This is an example for implementing the model interface
     """
@@ -16,7 +18,9 @@ class RandomForestClassifierModel(ModelInterface):
     def __str__(self):
         return str(self._model_object)
 
-    def load_data(self):
+    def setup_data(self, path=None):
+        data_loader.load_data_from_csv("sample_data.csv")
+        dataset = data_loader.get_dataset()
         # self.load_some_data()
         # Implement load data function here.
         return None

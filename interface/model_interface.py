@@ -1,28 +1,28 @@
 from abc import abstractmethod, ABCMeta
 
 
-class ModelInterface:
+class model_interface:
     __metaclass__ = ABCMeta
 
     @abstractmethod
     def __init__(self):
         """
-        Base Interface: Initialize the model by setting model name and model object.
+        Base interface: Initialize the model by setting model name and model object.
         """
         raise NotImplementedError("You must implement ModelInterface.__init__() interface!")
 
     @abstractmethod
     def __str__(self):
         """
-        Base Interface: Convert the model into a human understandable string.
+        Base interface: Convert the model into a human understandable string.
         :return: An string object.
         """
         raise NotImplementedError("You must implement ModelInterface.__str__() interface!")
 
     @abstractmethod
-    def load_data(self):
+    def setup_data(self):
         """
-        Base Interface: Load the dataset.
+        Base interface: Load the dataset.
         :return: None
         """
         raise NotImplementedError("You must implement ModelInterface.load_data() interface!")
@@ -30,7 +30,7 @@ class ModelInterface:
     @abstractmethod
     def set_model_parameters(self, parameters):
         """
-        Base Interface: Set model parameters.
+        Base interface: Set model parameters.
         :param parameters:
         :return:
         """
@@ -39,7 +39,7 @@ class ModelInterface:
     @abstractmethod
     def get_model_parameters(self):
         """
-        Base Interface: Get the parameters of the model.
+        Base interface: Get the parameters of the model.
         :return:
         """
         raise NotImplementedError("You must implement ModelInterface.get_model_parameters() interface!")
@@ -47,7 +47,7 @@ class ModelInterface:
     @abstractmethod
     def fit(self, train_set):
         """
-        Base Interface: Train the model
+        Base interface: Train the model
         :param train_set:
         :return:
         """
@@ -56,7 +56,7 @@ class ModelInterface:
     @abstractmethod
     def validate_model(self):
         """
-        Base Interface: Validate model.
+        Base interface: Validate model.
         :return:
         """
         print("ModelInterface.validate() is an optional property.")
@@ -64,7 +64,7 @@ class ModelInterface:
     @abstractmethod
     def predict(self, test_set):
         """
-        Base Interface: Predict results on test_set.
+        Base interface: Predict results on test_set.
         :param test_set:
         :return:
         """
@@ -73,7 +73,7 @@ class ModelInterface:
     @abstractmethod
     def save_model(self):
         """
-        Base Interface: Save model
+        Base interface: Save model
         :return:
         """
         print("ModelInterface.save_model() is an optional property.")
