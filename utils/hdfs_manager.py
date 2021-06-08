@@ -1,3 +1,12 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# ******************************************************************************
+# Name: data_generator.py
+# Developer:
+# Data:
+# Version:
+# ******************************************************************************
+
 from hdfs import Client
 
 HDFS_HOST = "http://hduser:50070"

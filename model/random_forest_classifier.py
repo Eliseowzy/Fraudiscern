@@ -19,8 +19,7 @@ class RandomForestClassifierModel(model_interface):
         return str(self._model_object)
 
     def setup_data(self, path=None):
-        data_loader.load_data_from_csv("sample_data.csv")
-        dataset = data_loader.get_dataset()
+        dataset = data_loader.load_data_from_csv("sample_data.csv")
         # self.load_some_data()
         # Implement load data function here.
         return None

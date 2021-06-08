@@ -1,4 +1,14 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# ******************************************************************************
+# Name: data_generator.py
+# Developer:
+# Data:
+# Version:
+# ******************************************************************************
+
 import pandas as pd
+
 from utils import logger
 
 _data_set = None
