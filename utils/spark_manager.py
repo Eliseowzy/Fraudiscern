@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # ******************************************************************************
-# Name: data_generator.py
-# Developer:
-# Data:
-# Version:
+# Name: spark_manager.py
+# Developer: Zhang Siyu
+# Data: 13.06.2021
+# Version: v1
 # ******************************************************************************
 
 from pyspark.sql import SparkSession
