@@ -14,6 +14,13 @@ _SPARK_SESSION = None
 
 
 def get_spark_session(appName):
+    '''
+    Get a new spark session.
+    
+    input: appName
+    returns: _SPARK_SESSION
+
+    '''
     global _SPARK_SESSION
     conf = SparkConf().setMaster("yarn").setAppName(appName)
     _SPARK_SESSION = SparkSession \
