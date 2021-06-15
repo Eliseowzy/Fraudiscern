@@ -3,7 +3,7 @@
 # ******************************************************************************
 # Name: logger.py
 # Developer: Wang Zhiyi (Based on Antoni Baum (Yard1) <antoni.baum@protonmail.com>)
-# Data:
+# Date:
 # Version:
 # ******************************************************************************
 
