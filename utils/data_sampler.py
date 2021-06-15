@@ -33,7 +33,7 @@ def _vectorize(data_set, categorical_attributes, target):
     columns = list(columns)
     columns.remove(data_set['target'])
     data_set_vectorized = _spark.createDataFrame()
-    assembler = VectorAssembler(inputCols=columnNames, outputCol='features')
+    assembler = VectorAssembler(inputCols=columns, outputCol='features')
     pos_vectorized = assembler.transform(dataInput)
     vectorized = pos_vectorized.select('features', TargetFieldName).withColumn('label',
                                                                                pos_vectorized[TargetFieldName]).drop(
