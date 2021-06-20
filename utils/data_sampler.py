@@ -14,6 +14,12 @@ _spark = spark_manager.get_spark_session()
 
 
 def _get_label_proportion(data_set, target='label'):
+    """
+    Get the count of fraud case and non-fraud case
+    :param data_set:
+    :param target:
+    :return:
+    """
     data_set = _spark.createDataFrame(data_set)
     label_count = data_set.groupby(target).count()
     row_number = label_count.count()
