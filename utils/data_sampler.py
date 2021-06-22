@@ -1,11 +1,12 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
-# ******************************************************************************
-# Name: data_generator.py
-# Developer: Wang Zhiyi
-# Date: 2021-06-22
-# Version: 1.0
-# ******************************************************************************
+
+"""
+@author: Wang Zhiyi
+@file: data_sampler.py
+@time: 6/20/2021
+@version: 1.0
+"""
 
 import pandas as pd
 import time

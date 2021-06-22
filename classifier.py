@@ -1,11 +1,12 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
-# ******************************************************************************
-# Name: data_generator.py
-# Developer:
-# Date:
-# Version:
-# ******************************************************************************
+
+"""
+@author: Wang Zhiyi
+@file: classifier.py
+@time: 6/20/2021
+@version: 1.0
+"""
 
 import pandas as pd
 

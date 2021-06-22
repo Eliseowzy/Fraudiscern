@@ -1,11 +1,12 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
-# ******************************************************************************
-# Name: data_generator.py
-# Developer:
-# Date:
-# Version:
-# ******************************************************************************
+
+"""
+@author: Wang Zhiyi (Based on Antoni Baum (Yard1) <antoni.baum@protonmail.com>)
+@file: model_persistence.py
+@time: 6/20/2021
+@version: 1.0
+"""
 from joblib import dump
 from joblib import load
 

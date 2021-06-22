@@ -1,3 +1,13 @@
+# !/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+@author: Wang Zhiyi
+@file: random_forest_classifier.py
+@time: 6/22/2021
+@version: 1.0
+"""
+
 from sklearn.ensemble import RandomForestClassifier
 
 from utils import data_loader

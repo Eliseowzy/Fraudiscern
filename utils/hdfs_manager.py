@@ -1,11 +1,12 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
-# ******************************************************************************
-# Name: data_generator.py
-# Developer: Wang Zhiyi
-# Date: 2021-06-21
-# Version: 1.0
-# ******************************************************************************
+
+"""
+@author: Wang Zhiyi
+@file: hdfs_manager.py
+@time: 6/20/2021
+@version: 1.0
+"""
 
 from hdfs import InsecureClient
 

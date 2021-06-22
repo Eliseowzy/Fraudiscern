@@ -1,11 +1,12 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
-# ******************************************************************************
-# Name: spark_manager.py
-# Developer: Zhang Siyu
-# Data: 13.06.2021
-# Version: v1
-# ******************************************************************************
+
+"""
+@author: Wang Zhiyi
+@file: spark_manager.py
+@time: 6/20/2021
+@version: 1.0
+"""
 
 from pyspark.sql import SparkSession
 from pyspark import SparkConf

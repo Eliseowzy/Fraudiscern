@@ -1,11 +1,12 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
-# ******************************************************************************
-# Name: logger.py
-# Developer: Wang Zhiyi (Based on Antoni Baum (Yard1) <antoni.baum@protonmail.com>)
-# Date:
-# Version:
-# ******************************************************************************
+
+"""
+@author: Wang Zhiyi (Based on Antoni Baum (Yard1) <antoni.baum@protonmail.com>)
+@file: logger.py
+@time: 6/20/2021
+@version: 1.0
+"""
 
 import logging
 import traceback
