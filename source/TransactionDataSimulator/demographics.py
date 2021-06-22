@@ -1,6 +1,6 @@
 def make_cities():
     cities = {}
-    f = open('./demographic_data/locations_partitions.csv', 'r').readlines()
+    f = open('demographic_data/locations_partitions.csv', 'r').readlines()
     for line in f:
         try:
             cdf, output = line.replace('\n', '').split(',')
@@ -14,7 +14,7 @@ def make_cities():
 def make_age_gender_dict():
     gender_age = {}
     prev = 0
-    f = open('./demographic_data/age_gender_demographics.csv', 'r').readlines()
+    f = open('demographic_data/age_gender_demographics.csv', 'r').readlines()
     for line in f:
         l = line.replace('\n', '').split(',')
         if l[3] != 'prop':

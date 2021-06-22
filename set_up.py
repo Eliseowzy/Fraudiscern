@@ -3,7 +3,7 @@
 
 """
 @author: Wang Zhiyi
-@file: tmp.py
+@file: set_up.py
 @time: 6/20/2021
 @version: 1.0
 """

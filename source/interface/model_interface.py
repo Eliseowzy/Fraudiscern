@@ -20,14 +20,6 @@ class model_interface:
         raise NotImplementedError("You must implement ModelInterface.__str__() interface!")
 
     @abstractmethod
-    def setup_data(self):
-        """
-        Base interface: Load the dataset.
-        :return: None
-        """
-        raise NotImplementedError("You must implement ModelInterface.load_data() interface!")
-
-    @abstractmethod
     def set_model_parameters(self, parameters):
         """
         Base interface: Set models parameters.

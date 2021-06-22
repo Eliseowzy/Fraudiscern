@@ -8,11 +8,7 @@
 @version: 1.0
 """
 
-from sklearn.ensemble import RandomForestClassifier
-
-from utils import data_loader
-from interface.model_interface import model_interface
-from utils import data_sampler
+from source.interface.model_interface import model_interface
 
 
 class RandomForestClassifierModel(model_interface):
@@ -29,14 +25,6 @@ class RandomForestClassifierModel(model_interface):
 
     def __str__(self):
         return str(self._model_object)
-
-    def setup_data(self, path=None):
-        dataset = data_loader.load_data_from_csv("sample_data.csv")
-        dataset = data_sampler.sampler(dataset, target="is_fraud")
-        # self.load_some_data()
-        # Implement load data function here.
-        self._dataset = dataset
-        return dataset
 
     def load_model(self, path):
         # self._model = self._model.load_my_model(path)

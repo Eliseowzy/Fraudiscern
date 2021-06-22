@@ -8,8 +8,6 @@
 @version: 1.0
 """
 
-import pandas as pd
-import time
 import spark_manager
 import random
 import numpy as np
@@ -86,18 +84,14 @@ def _smote_sampling(vectorized, k=5, minority_class=1, majority_class=0, percent
     return new_data_major.unionAll(new_data_minor)
 
 
-def sampler(data_set, target='label'):
-    data_set = _spark_session.createDataFrame(data_set)
+def smote(data_set, target='label'):
     label_proportion = _get_label_proportion(data_set, target)
     keys = label_proportion.keys()
     count_1 = label_proportion[keys[0]]
     count_2 = label_proportion[keys[1]]
-    ratio = count_1 / count_2
+    ratio = max(count_1, count_2) / min(count_1, count_2)
+    new_data_set = None
     if ratio > 5:
-        # 采样
-        new_data_set = _smote_sampling(_vectorize(data_set, 'is_fraud'), k=2, minority_class=1, majority_class=0,
-                                       percentage_over=400, percentage_under=5)
-    else:
         # 采样
         new_data_set = _smote_sampling(_vectorize(data_set, 'is_fraud'), k=2, minority_class=1, majority_class=0,
                                        percentage_over=400, percentage_under=5)

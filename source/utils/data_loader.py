@@ -8,12 +8,10 @@
 @version: 1.0
 """
 
-
 import pandas as pd
 
 import hdfs_manager
 import spark_manager
-import data_generator as dg
 
 _hdfs_client = hdfs_manager.get_hdfs_client()
 _spark_session = spark_manager.get_spark_session()
