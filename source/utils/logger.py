@@ -37,7 +37,7 @@ def _create_logger() -> logging.Logger:
         logger.handlers.clear()
 
     try:
-        ch = logging.FileHandler("logs.log")
+        ch = logging.FileHandler("./logs/logs.log")
     except:
         print("Could not attach a FileHandler to the logger! No logs will be saved.")
         traceback.print_exc()
