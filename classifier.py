@@ -35,6 +35,6 @@ def set_data(dataset, test_proportion=0.05):
 
 
 def compare_models(mode_list=None):
-    logger.info("Compare model is not implemented.")
+    logger.info("Compare models is not implemented.")
     if mode_list is None:
         mode_list = []

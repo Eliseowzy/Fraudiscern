@@ -7,14 +7,14 @@ class model_interface:
     @abstractmethod
     def __init__(self):
         """
-        Base interface: Initialize the model by setting model name and model object.
+        Base interface: Initialize the models by setting models name and models object.
         """
         raise NotImplementedError("You must implement ModelInterface.__init__() interface!")
 
     @abstractmethod
     def __str__(self):
         """
-        Base interface: Convert the model into a human understandable string.
+        Base interface: Convert the models into a human understandable string.
         :return: An string object.
         """
         raise NotImplementedError("You must implement ModelInterface.__str__() interface!")
@@ -30,7 +30,7 @@ class model_interface:
     @abstractmethod
     def set_model_parameters(self, parameters):
         """
-        Base interface: Set model parameters.
+        Base interface: Set models parameters.
         :param parameters:
         :return:
         """
@@ -39,7 +39,7 @@ class model_interface:
     @abstractmethod
     def get_model_parameters(self):
         """
-        Base interface: Get the parameters of the model.
+        Base interface: Get the parameters of the models.
         :return:
         """
         raise NotImplementedError("You must implement ModelInterface.get_model_parameters() interface!")
@@ -47,7 +47,7 @@ class model_interface:
     @abstractmethod
     def fit(self, train_set):
         """
-        Base interface: Train the model
+        Base interface: Train the models
         :param train_set:
         :return:
         """
@@ -56,7 +56,7 @@ class model_interface:
     @abstractmethod
     def validate_model(self):
         """
-        Base interface: Validate model.
+        Base interface: Validate models.
         :return:
         """
         print("ModelInterface.validate() is an optional property.")
@@ -73,7 +73,7 @@ class model_interface:
     @abstractmethod
     def save_model(self):
         """
-        Base interface: Save model
+        Base interface: Save models
         :return:
         """
         print("ModelInterface.save_model() is an optional property.")
@@ -82,7 +82,7 @@ class model_interface:
     @abstractmethod
     def load_model(self, path):
         """
-        Base interface: Load an existing model from a file.
+        Base interface: Load an existing models from a file.
         :param path:
         :return:
         """

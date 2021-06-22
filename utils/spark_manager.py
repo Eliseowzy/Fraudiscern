@@ -9,22 +9,33 @@
 
 from pyspark.sql import SparkSession
 from pyspark import SparkConf
+import time
 
-_SPARK_SESSION = None
+
+def get_spark_session():
+    try:
+        assert bool(GLOBAL_SPARK)
+        return GLOBAL_SPARK
+    except:
+        return create_spark_session()
 
 
-def get_spark_session(appName):
-    '''
+def create_spark_session():
+    """
     Get a new spark session.
-    
-    input: appName
-    returns: _SPARK_SESSION
 
-    '''
-    global _SPARK_SESSION
-    conf = SparkConf().setMaster("yarn").setAppName(appName)
-    _SPARK_SESSION = SparkSession \
+    returns: _SPARK_SESSION
+    """
+
+    # 按照时分秒给spark session命名
+    _cur_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    _spark_appName = "{}_{}".format("app", str(_cur_time))
+    _conf = SparkConf().setMaster("yarn").setAppName(_spark_appName)
+    _spark_session = SparkSession \
         .builder \
-        .config(conf=conf) \
+        .config(conf=_conf) \
         .getOrCreate()
-    return _SPARK_SESSION
+    return _spark_session
+
+
+GLOBAL_SPARK = create_spark_session()
