@@ -3,7 +3,7 @@
 
 """
 @author: Wang Zhiyi
-@file: classifier.py
+@file: tmp.py
 @time: 6/20/2021
 @version: 1.0
 """
