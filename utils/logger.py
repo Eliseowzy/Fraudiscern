@@ -13,14 +13,22 @@ import traceback
 
 
 def get_logger() -> logging.Logger:
+    """
+    Get a logger object, if not exists call _create_logger().
+    :return: logger object
+    """
     try:
         assert bool(GLOBAL_LOGGER)
         return GLOBAL_LOGGER
     except:
-        return create_logger()
+        return _create_logger()
 
 
-def create_logger() -> logging.Logger:
+def _create_logger() -> logging.Logger:
+    """
+    Create a logger object (singleton)
+    :return: a logger object
+    """
     logger = logging.getLogger("logs")
     logger.setLevel(logging.DEBUG)
 
@@ -48,4 +56,4 @@ def create_logger() -> logging.Logger:
     return logger
 
 
-GLOBAL_LOGGER = create_logger()
+GLOBAL_LOGGER = _create_logger()

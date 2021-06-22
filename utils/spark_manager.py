@@ -14,18 +14,21 @@ import time
 
 
 def get_spark_session():
+    """
+    Get a spark session, if not exists call _crate_spark_session().
+    :return:
+    """
     try:
         assert bool(GLOBAL_SPARK)
         return GLOBAL_SPARK
     except:
-        return create_spark_session()
+        return _crate_spark_session()
 
 
-def create_spark_session():
+def _crate_spark_session():
     """
-    Get a new spark session.
-
-    returns: _SPARK_SESSION
+    Create a spark session (singleton)
+    :return:
     """
 
     # 按照时分秒给spark session命名
@@ -39,4 +42,4 @@ def create_spark_session():
     return _spark_session
 
 
-GLOBAL_SPARK = create_spark_session()
+GLOBAL_SPARK = _crate_spark_session()

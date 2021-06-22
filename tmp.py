@@ -1,8 +1,9 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
-# ******************************************************************************
-# Name: tmp.py
-# Developer:
-# Date:
-# Version:
-# ******************************************************************************
+
+"""
+@author: Wang Zhiyi
+@file: classifier.py
+@time: 6/20/2021
+@version: 1.0
+"""
