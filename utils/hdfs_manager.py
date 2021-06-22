@@ -2,18 +2,14 @@
 # -*- coding: utf-8 -*-
 # ******************************************************************************
 # Name: data_generator.py
-# Developer:
-# Date:
-# Version:
+# Developer: Wang Zhiyi
+# Date: 2021-06-21
+# Version: 1.0
 # ******************************************************************************
 
-from hdfs import Client
-
-HDFS_HOST = "http://hduser:50070"
-FILE_NAME = "/tmp/dataset/part-001"
-COLUMN_NAMES = ['a1', 'a2', 'a3', 'target']
+from hdfs import InsecureClient
 
 
 def get_hdfs_client():
-    client = Client(HDFS_HOST)
-    return client
+    hdfs_client = InsecureClient("http://127.0.0.1:50070")
+    return hdfs_client

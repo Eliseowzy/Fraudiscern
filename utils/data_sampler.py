@@ -8,52 +8,64 @@
 # ******************************************************************************
 
 import pandas as pd
+import time
 import spark_manager
+import random
+import numpy as np
+from pyspark.sql import Row
+from sklearn import neighbors
+from pyspark.ml.feature import VectorAssembler
 
-_spark = spark_manager.get_spark_session()
-
-
-def _get_label_proportion(data_set, target='label'):
-    """
-    Get the count of fraud case and non-fraud case
-    :param data_set:
-    :param target:
-    :return:
-    """
-    data_set = _spark.createDataFrame(data_set)
-    label_count = data_set.groupby(target).count()
-    row_number = label_count.count()
-    print(data_set, row_number)
-    # Exception handling: Target attributes are not binary.
-    if row_number != 2:
-        raise TypeError("Error process: Only support binary targets.")
-    iterator = data_set.rdd.toLocalIterator()
-    row_1 = next(iterator).count
-    row_2 = next(iterator).count
-    res = {row_1[target]: row_1['count'], row_2[target]: row_2['count']}
-    return res
+cur_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+spark_appName = "{}_{}".format("app", str(cur_time))
+_spark = spark_manager.get_spark_session(spark_appName)
 
 
-def _vectorize(data_set, categorical_attributes, target):
-    columns = data_set.columns
-    columns = list(columns)
-    columns.remove(data_set['target'])
-    data_set_vectorized = _spark.createDataFrame()
-    assembler = VectorAssembler(inputCols=columns, outputCol='features')
+def _vectorize(dataset, target_name):
+    columnNames = ['amt', 'lat', 'long', 'merch_long', 'is_fraud']
+    dataInput = dataset.select((','.join(columnNames) + ',' + target_name).split(','))
+    assembler = VectorAssembler(inputCols=columnNames, outputCol='features')
     pos_vectorized = assembler.transform(dataInput)
-    vectorized = pos_vectorized.select('features', TargetFieldName).withColumn('label',
-                                                                               pos_vectorized[TargetFieldName]).drop(
-        TargetFieldName)
-    return data_set_vectorized
+    vectorized = pos_vectorized.select('features', target_name).withColumn('label', pos_vectorized[target_name]).drop(
+        target_name)
+    return vectorized
 
 
-def _smote(data_set, target, type_value, sample_num, categorical_attributes=None):
-    # 将数据集向量化
-    new_data_set = _vectorize(data_set, categorical_attributes, target)
-    # 筛选出需要采样的数据
-    new_data_set = data_set.filter(new_data_set[target] == type_value)
-
-    return new_data_set
+def SmoteSampling(vectorized, k=5, minorityClass=1, majorityClass=0, percentageOver=100, percentageUnder=20):
+    if (percentageUnder > 100 | percentageUnder < 10):
+        raise ValueError('Percentage Under must be in range 10 - 100');
+    if (percentageOver < 100):
+        raise ValueError("Percentage Over must be in at least 100");
+    dataInput_min = vectorized[vectorized['label'] == minorityClass]
+    dataInput_maj = vectorized[vectorized['label'] == majorityClass]
+    feature = dataInput_min.select('features')
+    feature = feature.rdd
+    feature = feature.map(lambda x: x[0])
+    feature = feature.collect()
+    feature = np.asarray(feature)
+    nbrs = neighbors.NearestNeighbors(n_neighbors=k, algorithm='auto').fit(feature)
+    neighbours = nbrs.kneighbors(feature)
+    gap = neighbours[0]
+    neighbours = neighbours[1]
+    min_rdd = dataInput_min.drop('label').rdd
+    pos_rddArray = min_rdd.map(lambda x: list(x))
+    pos_ListArray = pos_rddArray.collect()
+    min_Array = list(pos_ListArray)
+    newRows = []
+    nt = len(min_Array)
+    nexs = int(percentageOver / 100)
+    for i in range(nt):
+        for j in range(nexs):
+            neigh = random.randint(1, k)
+            difs = min_Array[neigh][0] - min_Array[i][0]
+            newRec = (min_Array[i][0] + random.random() * difs)
+            newRows.insert(0, (newRec))
+    newData_rdd = _spark.sparkContext.parallelize(newRows)
+    newData_rdd_new = newData_rdd.map(lambda x: Row(features=x, label=1))
+    new_data = newData_rdd_new.toDF()
+    new_data_minor = dataInput_min.unionAll(new_data)
+    new_data_major = dataInput_maj.sample(False, (float(percentageUnder) / float(100)))
+    return new_data_major.unionAll(new_data_minor)
 
 
 def sampler(data_set, target='label', categorical_attributes=None):
