@@ -8,7 +8,7 @@
 @version: 1.0
 """
 
-from source.interface.model_interface import model_interface
+# from source.interface.model_interface import model_interface
 
 
 class RandomForestClassifierModel(model_interface):

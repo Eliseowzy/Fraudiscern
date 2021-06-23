@@ -8,12 +8,14 @@
 @version: 1.0
 """
 
-import spark_manager
 import random
+
 import numpy as np
+from pyspark.ml.feature import VectorAssembler
 from pyspark.sql import Row
 from sklearn import neighbors
-from pyspark.ml.feature import VectorAssembler
+
+import spark_manager
 
 _spark_session = spark_manager.get_spark_session()
 
@@ -85,6 +87,15 @@ def _smote_sampling(vectorized, k=5, minority_class=1, majority_class=0, percent
 
 
 def smote(data_set, target='label'):
+    """
+
+    Args:
+        data_set: A data set with numerical attributes and one target attribute.
+        target: The column index of target index.
+    Returns:
+        new_data_set(pyspark.DataFrame): The data set after sampling.
+
+    """
     label_proportion = _get_label_proportion(data_set, target)
     keys = label_proportion.keys()
     count_1 = label_proportion[keys[0]]

@@ -8,15 +8,17 @@
 @version: 1.0
 """
 
-from pyspark.sql import SparkSession
-from pyspark import SparkConf
 import time
+
+from pyspark import SparkConf
+from pyspark.sql import SparkSession
 
 
 def get_spark_session():
-    """
-    Get a spark session, if not exists call _crate_spark_session().
-    :return:
+    """Get a spark session, if not exists call _crate_spark_session().
+
+    Returns:
+        SparkSession: GLOBAL_SPARK
     """
     try:
         assert bool(GLOBAL_SPARK)
@@ -26,9 +28,10 @@ def get_spark_session():
 
 
 def _crate_spark_session():
-    """
-    Create a spark session (singleton)
-    :return:
+    """Create a spark session (singleton)
+
+    Returns:
+        SparkSession: _spark_session
     """
 
     # 按照时分秒给spark session命名

@@ -30,10 +30,15 @@ class classifier:
 
     def set_data_set(self, data_set_path, test_proportion=0.05):
         """
-        Set the data set of the classifier
-        :param data_set_path: the location of the data set
-        :param test_proportion: The proportion of test set
-        :return: None
+        Set the data set of the classifier.
+
+        Args:
+            data_set_path: the location of the data set
+            test_proportion: The proportion of test set
+
+        Returns:
+            None
+
         """
         self._data_set = data_loader.load_data_from_csv(data_set_path)
         # 过采样
@@ -55,10 +60,12 @@ class classifier:
     def set_model(self, model_name="random_forest"):
         """
         Set the model will be trained.
-        :param model_name: The name of the model. {
-            “random_forest": random forest classifier.
-        }
-        :return:
+
+        Args:
+            model_name(string): The name of the model.
+
+        Returns:
+            classifier model.
         """
         if self._model_name == "random_forest":
             self._model_name = model_name
@@ -69,7 +76,9 @@ class classifier:
     def train_model(self):
         """
         Train the classifier using train set.
-        :return: None
+
+        Returns:
+            NoneType: None
         """
         if self._model_name == "random_forest":
             self._model.fit(self._train_set)
@@ -79,7 +88,9 @@ class classifier:
     def test_model(self):
         """
         Test the classifier using test set.
-        :return: None
+
+        Returns:
+            NoneType: None
         """
         if self._model_name == "random_forest":
             self._model.predict(self._test_set)

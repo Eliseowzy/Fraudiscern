@@ -13,9 +13,10 @@ import traceback
 
 
 def get_logger() -> logging.Logger:
-    """
-    Get a logger object, if not exists call _create_logger().
-    :return: logger object
+    """Get a logger object, if not exists call _create_logger().
+
+    Returns:
+        class 'logging.Logger': A python logger object.
     """
     try:
         assert bool(GLOBAL_LOGGER)
@@ -25,9 +26,10 @@ def get_logger() -> logging.Logger:
 
 
 def _create_logger() -> logging.Logger:
-    """
-    Create a logger object (singleton)
-    :return: a logger object
+    """Create a logger object (singleton)
+
+    Returns:
+        class 'logging.Logger': A python logger object.
     """
     logger = logging.getLogger("logs")
     logger.setLevel(logging.DEBUG)
@@ -37,7 +39,7 @@ def _create_logger() -> logging.Logger:
         logger.handlers.clear()
 
     try:
-        ch = logging.FileHandler("./logs/logs.log")
+        ch = logging.FileHandler("logs.log")
     except:
         print("Could not attach a FileHandler to the logger! No logs will be saved.")
         traceback.print_exc()
