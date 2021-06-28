@@ -4,8 +4,8 @@
 """
 @author: Wang Zhiyi
 @file: classifier.py
-@time: 6/20/2021
-@version: 1.0
+@time: 6/29/2021
+@version: 1.1
 """
 
 from source.models import random_forest_classifier
@@ -18,15 +18,18 @@ _hdfs_client = hdfs_manager.get_hdfs_client()
 
 
 class classifier:
-    def __init__(self, data_set_path):
+    def __init__(self, model_name='random_forest', target="is_fraud"):
         # 数据集
-        self._data_set = _spark_session.createDataFrame()
-        self._train_set = _spark_session.createDataFrame()
-        self._test_set = _spark_session.createDataFrame()
+        self._data_set = None
+        self._train_set, self._test_set = None, None
+        self._target = target
 
         # 模型
-        self._model_name = "None"
-        self._model = None
+        self._model_name = model_name
+        if model_name == 'random_forest':
+            self._model = random_forest_classifier.RandomForestClassifierModel(impurity='gini', trees_count=200,
+                                                                               seed=2021)
+        self._predict_result = None
 
     def set_data_set(self, data_set_path, test_proportion=0.05):
         """
@@ -41,23 +44,18 @@ class classifier:
 
         """
         self._data_set = data_loader.load_data_from_csv(data_set_path)
-        # 过采样
-        self._data_set = data_sampler.smote(self._data_set, target='is_fraud')
         # 划分训练集、测试集
-        self._train_set, self._test_set = self._get_train_test_set(test_proportion)
-        return None
+        self._train_set, self._test_set = self._set_train_test_set(test_proportion)
+        # 过采样
+        self._train_set = data_sampler.smote(self._train_set, target=self._target)
+        return self._train_set, self._test_set
 
-    def _get_train_test_set(self, test_proportion=0.05):
+    def _set_train_test_set(self, test_proportion=0.05):
         train_proportion = 1 - test_proportion
-        train_set = self._data_set.sample(frac=train_proportion, random_state=786)
-        test_set = self._data_set.drop(train_set.index)
-        train_set.reset_index(inplace=True, drop=True)
-        test_set.reset_index(inplace=True, drop=True)
-        print('Data for Training: ' + str(train_set.shape))
-        print('Data for Testing ' + str(test_set.shape))
-        return train_set, test_set
+        self._train_set, self._test_set = self._data_set.randomSplit([train_proportion, test_proportion])
+        return self._train_set, self._test_set
 
-    def set_model(self, model_name="random_forest"):
+    def _set_model(self, model_name="random_forest"):
         """
         Set the model will be trained.
 
@@ -70,7 +68,7 @@ class classifier:
         if self._model_name == "random_forest":
             self._model_name = model_name
             # 构造随机森林模型
-            self._model = random_forest_classifier.RandomForestClassifierModel()
+
         return self._model
 
     def train_model(self):
@@ -82,25 +80,17 @@ class classifier:
         """
         if self._model_name == "random_forest":
             self._model.fit(self._train_set)
+        return self._model
 
-        return None
-
-    def test_model(self):
+    def predict(self):
         """
         Test the classifier using test set.
 
         Returns:
             NoneType: None
         """
-        if self._model_name == "random_forest":
-            self._model.predict(self._test_set)
-        return None
+        self._predict_result = self._model.predict(self._test_set)
+        return self._predict_result
 
-# def validate_model():
-#     global
-
-
-# def compare_models(mode_list=None):
-#     _logger.info("Compare models is not implemented.")
-#     if mode_list is None:
-#         mode_list = []
+    def validate_model(self, validate_method='accuracy'):
+        return self._model.validate_model(method=validate_method)

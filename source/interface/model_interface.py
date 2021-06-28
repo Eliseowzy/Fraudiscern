@@ -20,23 +20,6 @@ class model_interface:
         raise NotImplementedError("You must implement ModelInterface.__str__() interface!")
 
     @abstractmethod
-    def set_model_parameters(self, parameters):
-        """
-        Base interface: Set models parameters.
-        :param parameters:
-        :return:
-        """
-        raise NotImplementedError("You must implement ModelInterface.set_model_parameters() interface!")
-
-    @abstractmethod
-    def get_model_parameters(self):
-        """
-        Base interface: Get the parameters of the models.
-        :return:
-        """
-        raise NotImplementedError("You must implement ModelInterface.get_model_parameters() interface!")
-
-    @abstractmethod
     def fit(self, train_set):
         """
         Base interface: Train the models
@@ -46,7 +29,7 @@ class model_interface:
         raise NotImplementedError("You must implement ModelInterface.train() interface!")
 
     @abstractmethod
-    def validate_model(self):
+    def validate_model(self, method):
         """
         Base interface: Validate models.
         :return:
@@ -63,7 +46,7 @@ class model_interface:
         raise NotImplementedError("You must implement ModelInterface.predict() interface!")
 
     @abstractmethod
-    def save_model(self):
+    def save_model(self, path):
         """
         Base interface: Save models
         :return:

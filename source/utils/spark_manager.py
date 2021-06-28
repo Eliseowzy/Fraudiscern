@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """
-@author: Wang Zhiyi
+@author: Zhang Siyu, Wang Zhiyi
 @file: spark_manager.py
-@time: 6/20/2021
-@version: 1.0
+@time: 6/21/2021
+@version: 1.1
 """
 
 import time
