@@ -26,6 +26,7 @@ class classifier:
 
         # 模型
         self._model_name = model_name
+        # 工厂模式
         if model_name == 'random_forest':
             self._model = random_forest_classifier.RandomForestClassifierModel(impurity='gini', trees_count=200,
                                                                                seed=2021)
@@ -45,14 +46,25 @@ class classifier:
         """
         self._data_set = data_loader.load_data_from_csv(data_set_path)
         # 划分训练集、测试集
-        self._train_set, self._test_set = self._set_train_test_set(test_proportion)
+        self._train_set, self._test_set = self._set_train_test_set(
+            test_proportion)
         # 过采样
-        self._train_set = data_sampler.smote(self._train_set, target=self._target)
+        self._train_set = data_sampler.smote(
+            self._train_set, target=self._target)
         return self._train_set, self._test_set
 
     def _set_train_test_set(self, test_proportion=0.05):
+        """Split the train set and test set. The ratio is 0.95~0.05 by defult.
+
+        Args:
+            test_proportion (float, optional): The ratio fo test set. Defaults to 0.05.
+
+        Returns:
+            pyspark.sql.DataFrame, pyspark.sql.DataFrame: Train set, Test set.
+        """
         train_proportion = 1 - test_proportion
-        self._train_set, self._test_set = self._data_set.randomSplit([train_proportion, test_proportion])
+        self._train_set, self._test_set = self._data_set.randomSplit(
+            [train_proportion, test_proportion])
         return self._train_set, self._test_set
 
     def _set_model(self, model_name="random_forest"):
@@ -63,12 +75,13 @@ class classifier:
             model_name(string): The name of the model.
 
         Returns:
-            classifier model.
+            pyspark.ml.classification.*: Model object.
         """
+        # 工厂模式：1. 构造随机森林模型
         if self._model_name == "random_forest":
             self._model_name = model_name
-            # 构造随机森林模型
-
+            self._model = random_forest_classifier.RandomForestClassifierModel(impurity='gini', trees_count=200,
+                                                                               seed=2021)
         return self._model
 
     def train_model(self):
@@ -76,7 +89,7 @@ class classifier:
         Train the classifier using train set.
 
         Returns:
-            NoneType: None
+            pyspark.ml.classification.*: Model object
         """
         if self._model_name == "random_forest":
             self._model.fit(self._train_set)
@@ -87,10 +100,18 @@ class classifier:
         Test the classifier using test set.
 
         Returns:
-            NoneType: None
+            pyspark.sql.DataFrame: predict_result
         """
         self._predict_result = self._model.predict(self._test_set)
         return self._predict_result
 
     def validate_model(self, validate_method='accuracy'):
+        """Validate the model by appointed method.
+
+        Args:
+            validate_method (str, optional): The validation method. Defaults to 'accuracy'.
+
+        Returns:
+            Multi-type: The predict result, could be a value, dictionary etc.
+        """
         return self._model.validate_model(method=validate_method)
