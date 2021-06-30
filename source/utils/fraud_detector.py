@@ -8,21 +8,25 @@
 @version: v1.0
 """
 
-import kafka_consumer
-from pyspark import SparkConf
-from pyspark import SparkContext
-from pyspark.mllib.util import Loader
 from pyspark.sql import Row
-from pyspark.sql import SparkSession
 from pyspark.streaming import StreamingContext
 
-from source.utils import spark_manager
+import kafka_consumer
+import model_persistence
+import spark_manager
 
 _spark_session = spark_manager.get_spark_session()
 _spark_context = _spark_session.sparkContext
 
 
-def detect(record, spark, model):
+def detect_one(record, spark, model):
+    """Detect a piece of record based on a model in spark streaming.
+
+    Args:
+        record (string): A piece of record.
+        spark (spark session): A spark session.
+        model (pkl): A pickle model file object.
+    """
     try:
         record = record.filter(lambda x: len(x) > 0)
 
@@ -35,26 +39,24 @@ def detect(record, spark, model):
         print('No data')
 
 
-def main():
-    appName = "spark_streaming_test"
-    conf = SparkConf() \
-        .setAppName(appName) \
-        .setMaster('yarn')
-    sc = SparkContext(conf=conf)
-    spark = SparkSession(sc)
-    model_path = 'hdfs:///models/RandomForestModel/rf_1'
-    model = Loader.load(sc, model_path)
-    topic = ['credit_card']
-    transaction = kafka_consumer.create_DStream_from_kafka(sc, topic)
-    ssc = StreamingContext(sc, batchDuration=1)
-    transaction.foreachRDD(detect(transaction, spark, model))
+def detect(model_path='hdfs:///models/RandomForestModel/rf_1', topic=None):
+    """Use the model in model_path to detect.
+
+    Args:
+        model_path (str, optional): The location of a model. Defaults to 'hdfs:///models/RandomForestModel/rf_1'.
+        topic ([type], optional): The topic of kafka consumer. Defaults to None.
+    """
+    if topic is None:
+        topic = ['credit_card']
+    model = model_persistence.load_model_from_file(model_path)
+    # topic = ['credit_card']
+    transaction = kafka_consumer.create_DStream_from_kafka(
+        _spark_context, topic)
+    ssc = StreamingContext(_spark_context, batchDuration=1)
+    transaction.foreachRDD(detect_one(transaction, _spark_session, model))
 
     # Start the computation
     ssc.start()
 
     # Wait for the computation to terminate
     ssc.awaitTermination()
-
-
-if __name__ == "__main__":
-    main()
