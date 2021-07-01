@@ -10,11 +10,8 @@
 
 import time
 
-import findspark
 from pyspark import SparkConf
 from pyspark.sql import SparkSession
-
-findspark.init()
 
 
 def get_spark_session():
@@ -40,7 +37,8 @@ def _crate_spark_session():
     # 按照时分秒给spark session命名
     _cur_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     _spark_appName = "{}_{}".format("spark_app", str(_cur_time))
-    _conf = SparkConf().setMaster("yarn").setAppName(_spark_appName)
+    # _conf = SparkConf().setMaster("yarn").setAppName(_spark_appName)
+    _conf = SparkConf().setAppName(_spark_appName)
     _spark_session = SparkSession \
         .builder \
         .config(conf=_conf) \

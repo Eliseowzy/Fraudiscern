@@ -93,7 +93,7 @@ def load_data_from_hdfs(path):
         pyspark.sql.dataframe.DataFrame: data_set
     """
     global _hdfs_client
-    with _hdfs_client.read(path, 'utf-8') as fs:
+    with _hdfs_client.read(path) as fs:
         data_set = pd.read_csv(fs, index_col=0)
     data_set = _spark_session.createDataFrame(data_set)
     return data_set
@@ -113,6 +113,6 @@ def load_data_to_hdfs(data_set, path):
     """
 
     global _hdfs_client
-    with _hdfs_client.write(path, encoding='utf-8')as fs:
+    with _hdfs_client.write(path)as fs:
         data_set.to_csv(fs)
     return None
