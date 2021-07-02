@@ -5,11 +5,6 @@ class model_interface:
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def __init__(self):
-        """Base interface: Initialize the models by setting models name and models object.
-        """
-
-    @abstractmethod
     def __str__(self):
         """Base interface: Convert the models into a human understandable string.
         """

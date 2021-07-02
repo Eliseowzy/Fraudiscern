@@ -8,11 +8,10 @@
 @version: 1.0
 """
 
-
 import pandas as pd
+
 import hdfs_manager
 import spark_manager
-import data_generator as dg
 
 _hdfs_client = hdfs_manager.get_hdfs_client()
 _spark_session = spark_manager.get_spark_session()
@@ -78,7 +77,7 @@ def load_data_to_csv(data_set, path):
     Returns:
         NoneType: None
     """
-    data_set.to_csv(path)
+    data_set.write.csv(path)
     return None
 
 
@@ -92,10 +91,11 @@ def load_data_from_hdfs(path):
     Returns:
         pyspark.sql.dataframe.DataFrame: data_set
     """
-    global _hdfs_client
-    with _hdfs_client.read(path) as fs:
-        data_set = pd.read_csv(fs, index_col=0)
-    data_set = _spark_session.createDataFrame(data_set)
+
+    sep = ','
+    header = True
+    _spark_context = _spark_session.sparkContext
+    data_set = _spark_session.read.csv(path=path, inferSchema=True, sep=sep, header=header)
     return data_set
 
 

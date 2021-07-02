@@ -8,12 +8,10 @@
 @version: 1.1
 """
 
-from pyspark.ml import Pipeline
 from pyspark.ml.classification import RandomForestClassifier
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator, BinaryClassificationEvaluator
-from pyspark.ml.feature import VectorAssembler
 
-from source.interface.model_interface import model_interface
+from source.interface import model_interface
 from source.utils import hdfs_manager
 from source.utils import logger
 from source.utils import model_persistence
@@ -50,11 +48,8 @@ class RandomForestClassifierModel(model_interface):
         Returns:
             pyspark.ml.classification.RandomForestClassifier: The random forest classifier object.
         """
-        features = train_set.columns[:-1]
-        feature_assembler = VectorAssembler().setInputCols(
-            features).setOutputCol('features')
-        pipeline = Pipeline(stages=[feature_assembler, self._model_object])
-        self._model_object = pipeline.fit(train_set)
+
+        self._model_object = self._model_object.fit(train_set)
         self._feature_importance = self._model_object.featureImportances
         return self._model_object
 
