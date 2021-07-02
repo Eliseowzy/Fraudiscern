@@ -1,8 +1,7 @@
 from abc import abstractmethod, ABCMeta
 
 
-class model_interface:
-    __metaclass__ = ABCMeta
+class model_interface(metaclass=ABCMeta):
 
     @abstractmethod
     def __str__(self):
@@ -51,11 +50,5 @@ class model_interface:
         Base interface: Load an existing models from a file.
         Args:
             path (str): The source path.
-        """
-        pass
-
-    @abstractmethod
-    def optional_property(self):
-        """Some optional features if necessary.
         """
         pass

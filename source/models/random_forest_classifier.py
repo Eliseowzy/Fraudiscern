@@ -11,7 +11,8 @@
 from pyspark.ml.classification import RandomForestClassifier
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator, BinaryClassificationEvaluator
 
-from source.interface import model_interface
+# from source.interface import model_interface
+from source.interface.model_interface import model_interface
 from source.utils import hdfs_manager
 from source.utils import logger
 from source.utils import model_persistence
@@ -33,7 +34,6 @@ class RandomForestClassifierModel(model_interface):
 
         self._model_object = RandomForestClassifier(
             impurity=impurity, numTrees=trees_count, seed=seed)
-        self._predict_result = None
         self._feature_importance = None
 
     def __str__(self):
@@ -51,6 +51,8 @@ class RandomForestClassifierModel(model_interface):
 
         self._model_object = self._model_object.fit(train_set)
         self._feature_importance = self._model_object.featureImportances
+        print("Feature importance: {}".format(self._feature_importance))
+        print(train_set.schema['features'].metadata['ml_attr']['attrs'])
         return self._model_object
 
     def predict(self, test_set):
@@ -62,28 +64,51 @@ class RandomForestClassifierModel(model_interface):
         Returns:
             pyspark.sql.DataFrame: The predict result.
         """
-        self._predict_result = self._model_object.transform(test_set)
-        return self._predict_result
+        # print("start predict")
+        _predict_result = self._model_object.transform(test_set)
 
-    def validate_model(self, method='accuracy'):
+        return _predict_result
+
+    def validate_model(self, test_set, method='accuracy'):
         """Validate the model in some indexes: ['accuracy', 'auc']
 
         Args:
+            test_set:
             method (str, optional): The validation option. Defaults to 'accuracy'.
 
         Returns:
             multi type: The predict result, could be a value, dictionary etc.
         """
+        _predict_result = self._model_object.transform(test_set)
+        print("Start validation.")
+        _valid_result = 0
+        # acc = MulticlassClassificationEvaluator(labelCol='label', metricName='accuracy').evaluate(_predict_result)
+        # print("accuracy is {}".format(acc))
         if method == 'accuracy':
-            evaluator = MulticlassClassificationEvaluator.setMetricName(
-                "accuracy")
-            acc = evaluator.evaluate(self._model_object)
-            return acc
+            # evaluator = MulticlassClassificationEvaluator.setMetricName(
+            #     "accuracy")
+            # acc = evaluator.evaluate(_predict_result)
+            acc = MulticlassClassificationEvaluator(labelCol='label', metricName='accuracy').evaluate(_predict_result)
+            print("accuracy is {}".format(acc))
+            _valid_result = acc
         if method == 'auc':
-            evaluator = BinaryClassificationEvaluator().setMetricName("areaUnderROC").setRawPredictionCol(
-                'rawPrediction').setLabelCol("label")
-            auc = evaluator.evaluate(self._predict_result)
-            return auc
+            auc = BinaryClassificationEvaluator(labelCol='label').evaluate(_predict_result)
+            # evaluator = BinaryClassificationEvaluator().setMetricName("areaUnderROC").setRawPredictionCol(
+            #     'rawPrediction').setLabelCol("label")
+            # auc = evaluator.evaluate(_predict_result)
+            print("auc is {}".format(auc))
+            _valid_result = auc
+        if method == 'precision':
+            precision = MulticlassClassificationEvaluator(labelCol='label',
+                                                          metricName='weightedPrecision').evaluate(_predict_result)
+            _valid_result = precision
+            print("precision is {}".format(precision))
+        if method == 'recall':
+            recall = MulticlassClassificationEvaluator(labelCol='label', metricName='weightedRecall').evaluate(
+                _predict_result)
+            _valid_result = recall
+            print("recall is {}".format(recall))
+        return _valid_result
 
     def save_model(self, path):
         """Save the trained model into a pickle file.
@@ -108,8 +133,3 @@ class RandomForestClassifierModel(model_interface):
         """
         self._model_object = model_persistence.load_model_from_file(path)
         return None
-
-    def optional_property(self):
-        """An optional property implementation, no features has been added.
-        """
-        print("You can write some other unique functions here")

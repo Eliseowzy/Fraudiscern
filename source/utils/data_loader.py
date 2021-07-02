@@ -92,10 +92,14 @@ def load_data_from_hdfs(path):
         pyspark.sql.dataframe.DataFrame: data_set
     """
 
-    sep = ','
-    header = True
     _spark_context = _spark_session.sparkContext
-    data_set = _spark_session.read.csv(path=path, inferSchema=True, sep=sep, header=header)
+    data_set = _spark_session.read.csv(path=path, inferSchema=True, sep=',', header=True)
+    # print(data_set.columns)
+    attributes = data_set.columns[1:]
+    attributes.remove('zip')
+    attributes.remove('unix_time')
+    data_set = data_set.select(attributes)
+    # print(data_set.head(2))
     return data_set
 
 

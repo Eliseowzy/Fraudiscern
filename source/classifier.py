@@ -8,7 +8,7 @@
 @version: 1.1
 """
 
-from source.models import random_forest_classifier
+from source.models.random_forest_classifier import RandomForestClassifierModel
 from source.utils import logger, spark_manager, data_sampler, data_loader, hdfs_manager
 
 # 日志, spark, hdfs单例
@@ -24,12 +24,11 @@ class classifier:
         self._train_set, self._test_set = None, None
         self._target = target
 
-        # 模型
+        # ml model
         self._model_name = model_name
-        # 工厂模式
+        # factory pattern
         if model_name == 'random_forest':
-            self._model = random_forest_classifier.RandomForestClassifierModel(impurity='gini', trees_count=200,
-                                                                               seed=2021)
+            self._model = RandomForestClassifierModel()
         self._predict_result = None
 
     def set_data_set(self, data_set_path, test_proportion=0.05):
@@ -44,13 +43,13 @@ class classifier:
             None
 
         """
-        self._data_set = data_loader.load_data_from_csv(data_set_path)
+        self._data_set = data_loader.load_data_from_hdfs(data_set_path)
         # 划分训练集、测试集
-        self._train_set, self._test_set = self._set_train_test_set(
-            test_proportion)
+        self._train_set, self._test_set = self._set_train_test_set(test_proportion)
         # 过采样
         self._train_set = data_sampler.smote(
             self._train_set, target=self._target)
+        self._test_set = data_sampler.vectorize(self._test_set, self._target)
         return self._train_set, self._test_set
 
     def _set_train_test_set(self, test_proportion=0.05):
@@ -80,8 +79,8 @@ class classifier:
         # 工厂模式：1. 构造随机森林模型
         if self._model_name == "random_forest":
             self._model_name = model_name
-            self._model = random_forest_classifier.RandomForestClassifierModel(impurity='gini', trees_count=200,
-                                                                               seed=2021)
+            self._model = RandomForestClassifierModel(impurity='gini', trees_count=200,
+                                                      seed=2021)
         return self._model
 
     def train_model(self):
@@ -91,19 +90,24 @@ class classifier:
         Returns:
             pyspark.ml.classification.*: Model object
         """
+        self._set_model(self._model_name)
+        print(self._model_name)
         if self._model_name == "random_forest":
             self._model.fit(self._train_set)
         return self._model
 
-    def predict(self):
+    def predict(self, data_set=None):
         """
         Test the classifier using test set.
 
         Returns:
             pyspark.sql.DataFrame: predict_result
         """
-        self._predict_result = self._model.predict(self._test_set)
-        return self._predict_result
+        if data_set is None:
+            self._predict_result = self._model.predict(self._test_set)
+            return self._predict_result
+        else:
+            return self._model.predict(data_set)
 
     def validate_model(self, validate_method='accuracy'):
         """Validate the model by appointed method.
@@ -114,4 +118,4 @@ class classifier:
         Returns:
             Multi-type: The predict result, could be a value, dictionary etc.
         """
-        return self._model.validate_model(method=validate_method)
+        return self._model.validate_model(method=validate_method, test_set=self._test_set)

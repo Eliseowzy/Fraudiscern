@@ -7,8 +7,11 @@
 @time: 7/1/2021
 @version:
 """
+import warnings
+
 import logger
 
+warnings.filterwarnings('ignore')
 _logger = logger.get_logger()
 
 
@@ -94,10 +97,17 @@ def classifier_test():
     from source.classifier import classifier
     try:
         classifier_instance = classifier()
-        classifier_instance.set_data_set("hdfs://10.244.35.208:9000/dataset/dataset_1/fraudTest.csv")
+        test, train = classifier_instance.set_data_set("hdfs://10.244.35.208:9000/dataset/dataset_1/fraudTest.csv")
+        # print(test.head(3))
         classifier_instance.train_model()
-        accuracy = classifier_instance.validate_model(validate_method="accuracy")
-        print(accuracy)
+        classifier_instance.predict()
+
+        # validation module test
+        classifier_instance.validate_model(validate_method='accuracy')
+        classifier_instance.validate_model(validate_method='auc')
+        classifier_instance.validate_model(validate_method='precision')
+        classifier_instance.validate_model(validate_method='recall')
+
     except Exception:
         _logger.error("Unit for classifier_test is NOT pass.")
 

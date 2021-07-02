@@ -59,7 +59,7 @@ def _extract_numerical_attributes(data_set):
     return attributes_type
 
 
-def _vectorize(data_set, target_name):
+def vectorize(data_set, target_name):
     """Extract the numerical attributes then vectorize the data set.
 
     Args:
@@ -202,7 +202,7 @@ def smote(data_set, target='is_fraud'):
     if ratio > 5:
         # print("start smote")
         # sampling
-        new_data_set = _smote_sampling(_vectorize(data_set, target_name=target))
+        new_data_set = _smote_sampling(vectorize(data_set, target_name=target))
         # column_names = list(_extract_numerical_attributes(data_set).keys())
         # column_names = column_names[1:]
         # # print(column_names)
