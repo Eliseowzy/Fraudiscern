@@ -113,7 +113,7 @@ def classifier_test():
 
 
 def main():
-    classifier_test()
+    # classifier_test()
     # data_sampler_test()
     # data_loader_test(function='load_data_to_csv')
     # data_loader_test(function='load_data_from_hdfs')
