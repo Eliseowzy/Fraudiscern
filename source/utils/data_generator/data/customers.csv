@@ -1,0 +1,11 @@
+ssn,cc_num,first,last,gender,street,city,state,zip,lat,long,city_pop,job,dob,acct_num,profile
+535-89-6775,346545733014127,Carla,Sheppard,F,013 Daniel Trafficway Suite 429,Coal City,IN,47427,39.2573,-86.9883,1093,"Psychologist, occupational",1970-02-10,639356225004,adults_50up_female_rural.json
+385-93-6051,3518152160915706,Kelly,Peters,F,1721 Phillips Drive,San Francisco,CA,94114,37.7587,-122.433,805301,Theme park manager,1959-10-08,954559730690,adults_50up_female_urban.json
+484-37-5978,180047700031746,Andrea,Simpson,F,409 Maria View Apt. 112,Monarch,CO,81227,38.5458,-106.2434,10,"Teacher, special educational needs",1979-04-09,279289428920,adults_2550_female_rural.json
+582-62-4031,347223914700588,Ashley,Henry,F,247 Sandra Pass,Decatur,MI,49045,42.1012,-86.0338,5598,Curator,1992-07-02,266030382047,adults_2550_female_urban.json
+177-97-6185,5395351866032237,Nicole,Villarreal,F,2655 Rebecca Parkway,Corning,CA,96021,39.9296,-122.196,16097,"Education officer, museum",1954-08-22,229660554362,adults_50up_female_urban.json
+861-61-6625,36047393387831,Rita,Cooper,F,058 Alvarez Drive Suite 981,West Decatur,PA,16878,40.9493,-78.3129,1762,Tourism officer,1946-11-23,895800199831,adults_50up_female_rural.json
+191-81-2998,630426144188,Jimmy,Moore,M,992 Turner River Suite 149,Windber,PA,15963,40.2287,-78.8303,11114,"Programmer, multimedia",1995-06-02,490955586719,adults_2550_male_urban.json
+074-70-9534,4693288854001,Margaret,Schroeder,F,2639 Julian Forest Apt. 859,Mount Royal,NJ,08061,39.8097,-75.2082,2672,Regulatory affairs officer,1965-03-10,816805095616,adults_50up_female_urban.json
+648-13-6498,4158499618009,Bruce,Nelson,M,5052 Brenda Ridge Suite 433,Oklahoma City,OK,73145,35.4304,-97.3962,640470,Professor Emeritus,1950-03-01,538181885321,adults_50up_male_urban.json
+565-35-3858,4414427085861570,Eric,Myers,M,288 Huerta Drives,Campbelltown,PA,17010,40.2712,-76.582,182,"Development worker, international aid",1986-08-18,300846284990,adults_2550_male_rural.json
