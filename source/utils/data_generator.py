@@ -35,5 +35,5 @@ def generate_customer_data(customer_number=10, seed=4444,
     return data
 
 
-def transaction_data():
+def generate_transaction_data():
     raise NotImplementedError("这里需要实现交易生成功能")
