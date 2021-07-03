@@ -2,17 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-@author: 
+@author: Wang Zhiyi
 @file: unit_test.py
-@time: 7/1/2021
+@time: 7/2/2021
 @version:
 """
-import os
-import sys
 import warnings
 
 import logger
-
 
 warnings.filterwarnings('ignore')
 _logger = logger.get_logger()
@@ -116,14 +113,27 @@ def classifier_test():
 
 
 def generator_test(function_name):
-    from data_generator import generate_customer_data
-    if function_name == "gen_customer":
-        customer_set = generate_customer_data()
-        print(customer_set)
+    try:
+        if function_name == "gen_customer":
+            from data_generator import generate_customer_data
+            _logger.info("Module: data_generator.generate_customer_data is imported successfully.")
+            customer_set = generate_customer_data()
+            print(customer_set)
+        if function_name == "gen_transaction":
+            from data_generator import generate_transaction_data
+            import pandas as pd
+            _logger.info("Module: data_generator.generate_transaction_data is imported successfully.")
+            transaction_set = generate_transaction_data()
+            print(transaction_set['last'])
+            pd.set_option('display.max_columns', None)
+            print(transaction_set.describe())
+            print(transaction_set.groupby('is_fraud').count())
+    except Exception:
+        _logger.error("Unit for generator_test.{} is NOT pass.".format(function_name))
 
 
 def main():
-    generator_test("gen_customer")
+    generator_test("gen_transaction")
     # classifier_test()
     # data_sampler_test()
     # data_loader_test(function='load_data_to_csv')

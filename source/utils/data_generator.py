@@ -11,6 +11,7 @@
 import pandas as pd
 
 from data_generator_module.datagen_customer_new import Customer
+from data_generator_module.datagen_transaction_new import helper
 
 
 def generate_customer_data(customer_number=10, seed=4444,
@@ -35,5 +36,14 @@ def generate_customer_data(customer_number=10, seed=4444,
     return data
 
 
-def generate_transaction_data():
-    raise NotImplementedError("这里需要实现交易生成功能")
+def generate_transaction_data(
+        customer_data_path="/home/hduser/fraudiscern/source/utils/data_generator_module/data/customers.csv",
+        profile_path="/home/hduser/fraudiscern/source/utils/data_generator_module/profiles/adults_2550_female_rural"
+                     ".json",
+        start_date="1-1-2012", end_date="1-31-2012",
+        file_path="/home/hduser/fraudiscern/source/utils/data_generator_module/data/adults_2550_female_rural.csv"):
+    transaction_data_set = helper(customer_data_path=customer_data_path, profile_path=profile_path,
+                                  start_date=start_date, end_date=end_date, file_path=file_path)
+    transaction_data_set.to_csv(file_path, index=False)
+    return transaction_data_set
+    # raise NotImplementedError("这里需要实现交易生成功能")
