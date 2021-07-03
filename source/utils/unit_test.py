@@ -7,9 +7,12 @@
 @time: 7/1/2021
 @version:
 """
+import os
+import sys
 import warnings
 
 import logger
+
 
 warnings.filterwarnings('ignore')
 _logger = logger.get_logger()
@@ -112,7 +115,15 @@ def classifier_test():
         _logger.error("Unit for classifier_test is NOT pass.")
 
 
+def generator_test(function_name):
+    from data_generator import generate_customer_data
+    if function_name == "gen_customer":
+        customer_set = generate_customer_data()
+        print(customer_set)
+
+
 def main():
+    generator_test("gen_customer")
     # classifier_test()
     # data_sampler_test()
     # data_loader_test(function='load_data_to_csv')

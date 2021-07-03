@@ -1,3 +1,13 @@
+# !/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+@author: Su Junjie,Wang Zhiyi
+@file: data_generator.py
+@time: 7/03/2021
+@version: 1.0
+"""
+
 import json
 
 
@@ -18,19 +28,21 @@ class MainConfig:
         else:
             return x
 
-    def all_profiles_dicts(self, main):
-
-        main_config = json.loads(json.dumps(main). \
-                                 replace('\\n', ''). \
-                                 replace('\\t', ''). \
-                                 replace('\\', ''). \
-                                 replace('"{', '{'). \
+    def all_profiles_dicts(self, main_config_path):
+        main_config = open(main_config_path, 'r').read()
+        main_config = json.loads(json.dumps(main_config).
+                                 replace('\\n', '').
+                                 replace('\\t', '').
+                                 replace('\\', '').
+                                 replace('"{', '{').
                                  replace('}"', '}'))
 
         all_profiles = {}
+        # print(main_config)
         for pf in main_config:
             if pf != 'leftovers.json':
                 all_profiles[pf] = {}
+
                 for qual in main_config[pf]:
                     all_profiles[pf][qual] = \
                         self.convert_config_type(main_config[pf][qual])

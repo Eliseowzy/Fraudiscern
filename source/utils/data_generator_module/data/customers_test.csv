@@ -1,0 +1,16 @@
+ssn,cc_num,first,last,gender,street,city,state,zip,lat,long,city_pop,job,dob,acct_num,profile
+535-89-6775,346545733014127,Christopher,Sheppard,M,013 Daniel Trafficway Suite 429,Kersey,PA,15846,41.3563,-78.6015,3636,"Psychologist, occupational",1934-02-10,639356225004,adults_50up_male_urban.json
+385-93-6051,3518152160915706,Joseph,Peters,M,1721 Phillips Drive,Las Vegas,NV,89109,36.126,-115.1454,1417793,Theme park manager,1970-10-08,954559730690,adults_50up_male_urban.json
+484-37-5978,180047700031746,Barry,Simpson,M,409 Maria View Apt. 112,Orleans,MI,48865,43.0895,-85.1165,1903,"Teacher, special educational needs",1995-04-09,279289428920,adults_2550_male_rural.json
+582-62-4031,347223914700588,Ashley,Henry,F,247 Sandra Pass,Chatom,AL,36518,31.4876,-88.2699,2842,Curator,1982-07-02,266030382047,adults_2550_female_urban.json
+177-97-6185,5395351866032237,Nicole,Villarreal,F,2655 Rebecca Parkway,North Highlands,CA,95660,38.6707,-121.3781,30714,"Education officer, museum",1965-08-22,229660554362,adults_50up_female_urban.json
+861-61-6625,36047393387831,Robert,Cooper,M,058 Alvarez Drive Suite 981,Scottsdale,AZ,85266,33.7669,-111.9182,268597,Tourism officer,1959-11-23,895800199831,adults_50up_male_urban.json
+191-81-2998,630426144188,Jimmy,Moore,M,992 Turner River Suite 149,Newport,NY,13416,43.18,-74.9861,2271,"Programmer, multimedia",1972-06-02,490955586719,adults_2550_male_rural.json
+074-70-9534,4693288854001,Margaret,Schroeder,F,2639 Julian Forest Apt. 859,Chaumont,NY,13622,44.0848,-76.1232,2432,Regulatory affairs officer,1986-03-10,816805095616,adults_2550_female_rural.json
+648-13-6498,4158499618009,Bruce,Nelson,M,5052 Brenda Ridge Suite 433,Beulah,CO,81023,38.0837,-104.9724,1236,Professor Emeritus,1957-03-01,538181885321,adults_50up_male_rural.json
+565-35-3858,4414427085861570,Eric,Myers,M,288 Huerta Drives,Grand Forks,ND,58201,47.901,-97.0446,54948,"Development worker, international aid",1944-08-18,300846284990,adults_50up_male_urban.json
+796-09-7611,4265161104913464,Lisa,Carr,F,630 Maldonado Prairie Suite 266,Fair Haven,NJ,07704,40.3599,-74.0389,6133,Professor Emeritus,1977-07-05,693640650874,adults_2550_female_urban.json
+688-88-3500,30586652622988,Catherine,Strong,F,944 Sullivan Dale Suite 896,Clio,SC,29525,34.5805,-79.5453,2029,"Teacher, special educational needs",1958-03-28,363819887203,adults_50up_female_rural.json
+422-86-8957,4047067882081629,Paul,Nelson,M,5057 Ramsey Pine,Thorofare,NJ,08086,39.8457,-75.1943,7699,Horticultural therapist,1970-11-24,425252023957,adults_50up_male_urban.json
+135-78-5404,30021287769731,Meghan,Barnes,F,83719 Schmidt Springs Suite 086,Green Bay,VA,23942,37.1234,-78.3072,1112,"Engineer, chemical",1995-01-28,591497598655,adults_2550_female_rural.json
+737-30-7832,342917953958156,Jenna,Sutton,F,12476 Underwood Ways Apt. 183,Alma,NY,14708,42.0169,-78.04,183,Publishing copy,1968-04-17,841274037130,adults_50up_female_rural.json
