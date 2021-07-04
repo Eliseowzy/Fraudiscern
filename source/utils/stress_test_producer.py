@@ -19,7 +19,7 @@ def stress_test_kafka_producer():
     producer = kafka_manager.get_kafka_producer()
     transaction_data_set = generate_transaction_data()
     for index, row in transaction_data_set.iterrows():
-        time.sleep(0)  # Send a piece of transaction every 0.1 second.
+        time.sleep(0.5)  # Send a piece of transaction every 0.1 second.
         data = row.to_json()
         print("{} has been send".format(data))
         producer.send(topic='test_data', value=data)

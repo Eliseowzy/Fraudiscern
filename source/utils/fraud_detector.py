@@ -10,6 +10,9 @@
 
 import json
 
+from pyspark.sql.functions import col
+from pyspark.sql.types import DoubleType
+
 import data_sampler
 import kafka_manager
 import model_persistence
@@ -22,16 +25,16 @@ _kafka_consumer = kafka_manager.get_kafka_consumer()
 
 def _detect_one(model, record):
     record = _spark_session.read.json(_spark_context.parallelize([record]))
-    print(record)
-
-    # record = data_sampler.vectorize(record, 'is_fraud')
-    # detect_result = model.transcofrm(record)
-    # return detect_result
+    for i in record.columns:
+        record = record.withColumn(i, col(i).cast(DoubleType()))
+    record = data_sampler.vectorize(record, 'is_fraud')
+    detect_result = model.transform(record)
+    detect_result = detect_result.toPandas().to_json()
+    return detect_result
 
 
 def detect(model_path="hdfs://10.244.35.208:9000/models/RandomForestModel/random_forest_1"):
     for message in _kafka_consumer:
-
         message_content = json.loads(message.value.decode())
         if message_content:
             message_topic = message.topic

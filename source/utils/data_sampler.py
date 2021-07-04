@@ -72,8 +72,8 @@ def vectorize(data_set, target_name):
     # print(_extract_numerical_attributes(data_set))
     num_cols = _extract_numerical_attributes(data_set).keys()
     num_cols = list(num_cols)
-    if data_set.select(target_name).distinct().count() != 2:
-        raise ValueError("Target col must have exactly 2 classes")
+    # if data_set.select(target_name).distinct().count() != 2 or data_set.select(target_name).distinct().count() != 1:
+    #     raise ValueError("Target col must have exactly 2 classes")
     if target_name in num_cols:
         num_cols.remove(target_name)
     # only assembled numeric columns into features
@@ -112,7 +112,7 @@ def _split_column(data_set, features: list):
         return str_schema
 
     schema_str = _create_schema_str(data_set, features)
-    print(schema_str+ "是是是是")
+    print(schema_str + "是是是是")
     # exec(schema_str)
     # print("schema是schema是schema是schema是schema是schema是schema是schema是：{}".format(schema))
     schema = StructType([StructField('zip', DoubleType(), True), StructField('lat', DoubleType(), True),

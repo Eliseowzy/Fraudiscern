@@ -38,7 +38,8 @@ def _crate_spark_session():
     _cur_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     _spark_appName = "{}_{}".format("spark_app", str(_cur_time))
     # _conf = SparkConf().setMaster("yarn").setAppName(_spark_appName)
-    _conf = SparkConf().\
+    _conf = SparkConf(). \
+        setMaster("yarn").\
         setAppName(_spark_appName).\
         set("spark.executor.memory", '8g').\
         set("spark.driver.memory", '8g')

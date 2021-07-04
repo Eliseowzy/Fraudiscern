@@ -148,11 +148,11 @@ def generator_test(function_name):
 def main():
     # generator_test("gen_transaction")
     # classifier_test()
-    model_persistence_test()
+    # model_persistence_test()
     # data_sampler_test()
     # data_loader_test(function='load_data_to_csv')
     # data_loader_test(function='load_data_from_hdfs')
-    # spark_manager_test()
+    spark_manager_test()
     # hdfs_manager_test()
     exit(0)
 
