@@ -44,6 +44,7 @@ def generate_transaction_data(
         file_path="/home/hduser/fraudiscern/source/utils/data_generator_module/data/adults_2550_female_rural.csv"):
     transaction_data_set = helper(customer_data_path=customer_data_path, profile_path=profile_path,
                                   start_date=start_date, end_date=end_date, file_path=file_path)
+
     transaction_data_set.to_csv(file_path, index=False)
     return transaction_data_set
     # raise NotImplementedError("这里需要实现交易生成功能")

@@ -11,7 +11,7 @@
 from pyspark.sql import Row
 from pyspark.streaming import StreamingContext
 
-import kafka_consumer
+import stress_test_producer
 import model_persistence
 import spark_manager
 
@@ -50,7 +50,7 @@ def detect(model_path='hdfs:///models/RandomForestModel/rf_1', topic=None):
         topic = ['credit_card']
     model = model_persistence.load_model_from_file(model_path)
     # topic = ['credit_card']
-    transaction = kafka_consumer.create_DStream_from_kafka(
+    transaction = stress_test_producer.create_DStream_from_kafka(
         _spark_context, topic)
     ssc = StreamingContext(_spark_context, batchDuration=1)
     transaction.foreachRDD(detect_one(transaction, _spark_session, model))
