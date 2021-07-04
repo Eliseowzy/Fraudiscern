@@ -8,11 +8,13 @@
 @version: 1.0
 """
 
-from pyspark.ml.classification import RandomForestClassifier
+# from pyspark.ml.pipeline import PipelineModel
+from pyspark.ml.classification import RandomForestClassificationModel
 
 from spark_manager import get_spark_session
 
 _spark_session = get_spark_session()
+_spark_context = _spark_session.sparkContext
 
 
 def load_model_from_file(path):
@@ -29,7 +31,9 @@ def load_model_from_file(path):
         ModelObject:
             Model object.
     """
-    model = RandomForestClassifier.load(path=path)
+    model = RandomForestClassificationModel.load(path=path)
+    # model = RandomForestClassifier.load(path=path)
+    # model = PipelineModel.load(path)
     return model
 
 
@@ -48,5 +52,6 @@ def load_model_to_file(model, path):
         NoneType: None
     """
     # dump(model, path)
+
     model.save(path=path)
     return None

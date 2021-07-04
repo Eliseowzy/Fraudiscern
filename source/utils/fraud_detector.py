@@ -20,20 +20,23 @@ _spark_context = _spark_session.sparkContext
 _kafka_consumer = kafka_manager.get_kafka_consumer()
 
 
-def detect_one(model, record):
-    record = _spark_session.createDataFrame(record)
-    record = data_sampler.vectorize(record, 'is_fraud')
-    detect_result = model.transcofrm(record)
-    return detect_result
+def _detect_one(model, record):
+    record = _spark_session.read.json(_spark_context.parallelize([record]))
+    print(record)
+
+    # record = data_sampler.vectorize(record, 'is_fraud')
+    # detect_result = model.transcofrm(record)
+    # return detect_result
 
 
-def detect(model_path='hdfs://10.244.35.208:9000/models/RandomForestModel/rf_1'):
+def detect(model_path="hdfs://10.244.35.208:9000/models/RandomForestModel/random_forest_1"):
     for message in _kafka_consumer:
+
         message_content = json.loads(message.value.decode())
         if message_content:
             message_topic = message.topic
             model = model_persistence.load_model_from_file(model_path)
-            detect_result = detect_one(model, message_content)
+            detect_result = _detect_one(model, message_content)
             print(detect_result)
 
 
