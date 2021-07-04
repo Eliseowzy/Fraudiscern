@@ -8,8 +8,11 @@
 @version: 1.0
 """
 
-from joblib import dump
-from joblib import load
+from pyspark.ml.classification import RandomForestClassifier
+
+from spark_manager import get_spark_session
+
+_spark_session = get_spark_session()
 
 
 def load_model_from_file(path):
@@ -18,6 +21,7 @@ def load_model_from_file(path):
     Reconstruct a models from a file persisted with models.dump.
 
     Args:
+        cls:
         path (string):
             The source path stores a models.
 
@@ -25,8 +29,7 @@ def load_model_from_file(path):
         ModelObject:
             Model object.
     """
-
-    model = load(path)
+    model = RandomForestClassifier.load(path=path)
     return model
 
 
@@ -44,5 +47,6 @@ def load_model_to_file(model, path):
     Returns:
         NoneType: None
     """
-    dump(model, path)
+    # dump(model, path)
+    model.save(path=path)
     return None

@@ -68,10 +68,22 @@ def data_loader_test(function='load_data_from_hdfs'):
             print(data_set.head(1))
 
 
+def model_persistence_test():
+    _model_object = None
+    # try:
+    import model_persistence
+    model_path = "hdfs://10.244.35.208:9000/models/RandomForestModel/random_forest_1"
+    print("=================================")
+    print("Start Model Persistence Test.")
+    model = model_persistence.load_model_from_file(model_path)
+    print(model)
+    # except Exception:
+    #     _logger.error("Unit test for model_persistence_test.load_model_from_file is NOT pass.")
+
+
 def data_sampler_test():
     import data_loader
     import data_sampler
-    # data_set = None
     new_data_set = None
     ratio_before, ratio_after = None, None
     try:
@@ -97,9 +109,10 @@ def classifier_test():
     from source.classifier import classifier
     try:
         classifier_instance = classifier()
-        test, train = classifier_instance.set_data_set("hdfs://10.244.35.208:9000/dataset/dataset_1/fraudTest.csv")
+        classifier_instance.set_data_set("hdfs://10.244.35.208:9000/dataset/dataset_1/fraudTest.csv")
         # print(test.head(3))
         classifier_instance.train_model()
+        classifier_instance.save_model()
         classifier_instance.predict()
 
         # validation module test
@@ -133,8 +146,9 @@ def generator_test(function_name):
 
 
 def main():
-    generator_test("gen_transaction")
+    # generator_test("gen_transaction")
     # classifier_test()
+    model_persistence_test()
     # data_sampler_test()
     # data_loader_test(function='load_data_to_csv')
     # data_loader_test(function='load_data_from_hdfs')

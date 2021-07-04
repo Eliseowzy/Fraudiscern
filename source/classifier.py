@@ -119,3 +119,10 @@ class classifier:
             Multi-type: The predict result, could be a value, dictionary etc.
         """
         return self._model.validate_model(method=validate_method, test_set=self._test_set)
+
+    def save_model(self, path="hdfs://10.244.35.208:9000/models/RandomForestModel/random_forest_1"):
+        self._model.save_model(path=path)
+        return None
+
+    def load_model(self, path="hdfs://10.244.35.208:9000/models/RandomForestModel/random_forest_1"):
+        return self._model.load_model(path=path)

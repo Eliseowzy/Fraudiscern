@@ -119,6 +119,8 @@ class RandomForestClassifierModel(model_interface):
         Returns:
             NoneType: None.
         """
+        print("测试mode_persistence!!!!!!!")
+        print("模型: {}已经保存。".format(self._model_object))
         model_persistence.load_model_to_file(self._model_object, path)
         return None
 
