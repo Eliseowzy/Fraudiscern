@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="remote_cluster" deleteMissingItems="true" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="hduser@localhost:8002 password" deleteMissingItems="true" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
       <paths name="FinalProject">
         <serverdata>
@@ -20,6 +20,20 @@
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="hduser@localhost:8002 password">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/hduser/fraudiscern" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="hduser@localhost:8002 password (1)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/hduser/fraudiscern_v1" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>

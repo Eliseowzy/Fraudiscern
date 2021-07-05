@@ -21,7 +21,7 @@ def get_kafka_producer():
 
 def _create_kafka_producer():
     kafka_producer = KafkaProducer(value_serializer=lambda v: json.dumps(v).encode('utf-8'),
-                                   bootstrap_servers='spark-797d5ccdb-2d4wd:9092')
+                                   bootstrap_servers=['spark-797d5ccdb-2d4wd:9092'])
     return kafka_producer
 
 

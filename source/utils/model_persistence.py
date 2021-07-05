@@ -23,7 +23,6 @@ def load_model_from_file(path):
     Reconstruct a models from a file persisted with models.dump.
 
     Args:
-        cls:
         path (string):
             The source path stores a models.
 
@@ -53,5 +52,5 @@ def load_model_to_file(model, path):
     """
     # dump(model, path)
 
-    model.save(path=path)
+    model.write().overwrite().save(path=path)
     return None

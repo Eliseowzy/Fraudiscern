@@ -7,6 +7,12 @@
 @time: 7/4/2021
 @version:
 """
+import os
+import sys
+
+curPath = os.path.abspath(os.path.dirname(__file__))
+rootPath = os.path.split(curPath)[0]
+sys.path.append(rootPath)
 import warnings
 
 import logger
@@ -18,10 +24,11 @@ _logger = logger.get_logger()
 def spark_manager_test():
     spark_session = None
     _logger.info("Start spark_manager unit test.")
-    import spark_manager
     try:
         _logger.info("Try to import spark_manager.")
-        spark_session = spark_manager.get_spark_session()
+        # spark_session = spark_manager.get_spark_session()
+        command = "spark-submit --master yarn spark_manager.py"
+        os.system(command)
     except Exception:
         _logger.error("File to import 'spark_manager'.")
     if bool(spark_session):
@@ -107,22 +114,21 @@ def data_sampler_test():
 
 def classifier_test():
     from source.classifier import classifier
-    try:
-        classifier_instance = classifier()
-        classifier_instance.set_data_set("hdfs://10.244.35.208:9000/dataset/dataset_1/fraudTest.csv")
-        # print(test.head(3))
-        classifier_instance.train_model()
-        classifier_instance.save_model()
-        classifier_instance.predict()
+    # try:
+    classifier_instance = classifier()
+    classifier_instance.set_data_set("hdfs://10.244.35.208:9000/dataset/dataset_1/fraudTest.csv")
+    # print(test.head(3))
+    classifier_instance.train_model()
+    classifier_instance.save_model()
+    classifier_instance.predict()
+    # validation module test
+    classifier_instance.validate_model(validate_method='accuracy')
+    classifier_instance.validate_model(validate_method='auc')
+    classifier_instance.validate_model(validate_method='precision')
+    classifier_instance.validate_model(validate_method='recall')
 
-        # validation module test
-        classifier_instance.validate_model(validate_method='accuracy')
-        classifier_instance.validate_model(validate_method='auc')
-        classifier_instance.validate_model(validate_method='precision')
-        classifier_instance.validate_model(validate_method='recall')
-
-    except Exception:
-        _logger.error("Unit for classifier_test is NOT pass.")
+    # except Exception:
+    #     _logger.error("Unit for classifier_test is NOT pass.")
 
 
 def generator_test(function_name):
@@ -145,14 +151,20 @@ def generator_test(function_name):
         _logger.error("Unit for generator_test.{} is NOT pass.".format(function_name))
 
 
+# def test_pipeline():
+# from source.classifier import classifier
+# classifier_instance = classifier()
+
+
 def main():
+    # spark_manager_test()
     # generator_test("gen_transaction")
-    # classifier_test()
+    classifier_test()
     # model_persistence_test()
     # data_sampler_test()
     # data_loader_test(function='load_data_to_csv')
     # data_loader_test(function='load_data_from_hdfs')
-    spark_manager_test()
+
     # hdfs_manager_test()
     exit(0)
 
