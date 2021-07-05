@@ -14,12 +14,22 @@ from kafka import KafkaProducer
 
 
 def get_kafka_producer():
+    """[summary]
+
+    Returns:
+        [type]: [description]
+    """
     # 实例化一个KafkaProducer示例，用于向Kafka投递消息
     producer = _create_kafka_producer()
     return producer
 
 
 def _create_kafka_producer():
+    """[summary]
+
+    Returns:
+        [type]: [description]
+    """
     kafka_producer = KafkaProducer(value_serializer=lambda v: json.dumps(v).encode('utf-8'),
                                    bootstrap_servers=['spark-797d5ccdb-2d4wd:9092'])
     return kafka_producer
@@ -35,5 +45,10 @@ def get_kafka_consumer():
 
 
 def _create_kafka_consumer():
+    """[summary]
+
+    Returns:
+        [type]: [description]
+    """
     kafka_consumer = KafkaConsumer('test_data', bootstrap_servers=['spark-797d5ccdb-2d4wd:9092'])
     return kafka_consumer

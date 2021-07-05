@@ -24,6 +24,15 @@ _kafka_consumer = kafka_manager.get_kafka_consumer()
 
 
 def _detect_one(model, record):
+    """[summary]
+
+    Args:
+        model ([type]): [description]
+        record ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
     record = _spark_session.read.json(_spark_context.parallelize([record]))
     for i in record.columns:
         record = record.withColumn(i, col(i).cast(DoubleType()))
@@ -34,6 +43,11 @@ def _detect_one(model, record):
 
 
 def detect(model_path="hdfs://10.244.35.208:9000/models/RandomForestModel/random_forest_1"):
+    """[summary]
+
+    Args:
+        model_path (str, optional): [description]. Defaults to "hdfs://10.244.35.208:9000/models/RandomForestModel/random_forest_1".
+    """
     for message in _kafka_consumer:
         message_content = json.loads(message.value.decode())
         if message_content:

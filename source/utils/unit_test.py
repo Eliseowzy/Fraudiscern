@@ -22,6 +22,8 @@ _logger = logger.get_logger()
 
 
 def spark_manager_test():
+    """[summary]
+    """
     spark_session = None
     _logger.info("Start spark_manager unit test.")
     try:
@@ -36,6 +38,8 @@ def spark_manager_test():
 
 
 def hdfs_manager_test():
+    """[summary]
+    """
     hdfs_client = None
     _logger.info("Start hdfs_manager unit test.")
     import hdfs_manager
@@ -49,6 +53,8 @@ def hdfs_manager_test():
 
 
 def data_loader_test(function='load_data_from_hdfs'):
+    """[summary]
+    """
     _logger.info("Start data_loader_test unit test.")
     data_set = None
     import data_loader
@@ -76,6 +82,8 @@ def data_loader_test(function='load_data_from_hdfs'):
 
 
 def model_persistence_test():
+    """[summary]
+    """
     _model_object = None
     # try:
     import model_persistence
@@ -89,6 +97,8 @@ def model_persistence_test():
 
 
 def data_sampler_test():
+    """[summary]
+    """
     import data_loader
     import data_sampler
     new_data_set = None
@@ -113,6 +123,8 @@ def data_sampler_test():
 
 
 def classifier_test():
+    """[summary]
+    """
     from source.classifier import classifier
     # try:
     classifier_instance = classifier()
@@ -132,6 +144,8 @@ def classifier_test():
 
 
 def generator_test(function_name):
+    """[summary]
+    """
     try:
         if function_name == "gen_customer":
             from data_generator import generate_customer_data
@@ -156,7 +170,9 @@ def generator_test(function_name):
 # classifier_instance = classifier()
 
 
-def main():
+def main_test():
+    """[summary]
+    """
     # spark_manager_test()
     # generator_test("gen_transaction")
     classifier_test()
@@ -170,4 +186,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main_test()

@@ -42,6 +42,18 @@ def generate_transaction_data(
                      ".json",
         start_date="1-1-2012", end_date="1-31-2012",
         file_path="/home/hduser/fraudiscern/source/utils/data_generator_module/data/adults_2550_female_rural.csv"):
+    """[summary]
+
+    Args:
+        customer_data_path (str, optional): [description]. Defaults to "/home/hduser/fraudiscern/source/utils/data_generator_module/data/customers.csv".
+        profile_path (str, optional): [description]. Defaults to "/home/hduser/fraudiscern/source/utils/data_generator_module/profiles/adults_2550_female_rural"".json".
+        start_date (str, optional): [description]. Defaults to "1-1-2012".
+        end_date (str, optional): [description]. Defaults to "1-31-2012".
+        file_path (str, optional): [description]. Defaults to "/home/hduser/fraudiscern/source/utils/data_generator_module/data/adults_2550_female_rural.csv".
+
+    Returns:
+        [type]: [description]
+    """
     transaction_data_set = helper(customer_data_path=customer_data_path, profile_path=profile_path,
                                   start_date=start_date, end_date=end_date, file_path=file_path)
     columns = ['cc_num', 'amt', 'zip', 'lat', 'long', 'city_pop', 'unix_time', 'merch_lat', 'merch_long', 'is_fraud']

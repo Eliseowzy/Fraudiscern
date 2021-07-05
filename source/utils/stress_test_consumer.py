@@ -13,6 +13,8 @@ import kafka_manager
 
 
 def stress_test_consumer():
+    """[summary]
+    """
     consumer = kafka_manager.get_kafka_consumer()
     for message in consumer:
         message_content = json.loads(message.value.decode())

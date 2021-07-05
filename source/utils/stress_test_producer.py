@@ -16,6 +16,11 @@ from data_generator import generate_transaction_data
 
 
 def stress_test_kafka_producer():
+    """[summary]
+
+    Returns:
+        [type]: [description]
+    """
     producer = kafka_manager.get_kafka_producer()
     transaction_data_set = generate_transaction_data()
     for index, row in transaction_data_set.iterrows():
