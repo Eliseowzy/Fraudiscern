@@ -13,7 +13,7 @@ import kafka_manager
 
 
 def stress_test_consumer():
-    """[summary]
+    """ Print messages from kafka cluster as a consumer client
     """
     consumer = kafka_manager.get_kafka_consumer()
     for message in consumer:
