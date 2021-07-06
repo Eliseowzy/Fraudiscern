@@ -9,7 +9,11 @@
 """
 
 # from pyspark.ml.pipeline import PipelineModel
-from pyspark.ml.classification import RandomForestClassificationModel
+
+# import sys
+import os
+
+from pyspark.ml.pipeline import PipelineModel
 
 from spark_manager import get_spark_session
 
@@ -30,9 +34,12 @@ def load_model_from_file(path):
         ModelObject:
             Model object.
     """
-    model = RandomForestClassificationModel.load(path=path)
+    # model = RandomForestClassificationModel.load(path=path)
     # model = RandomForestClassifier.load(path=path)
     # model = PipelineModel.load(path)
+
+    model = PipelineModel.load(path)
+    os.system('echo -e "\033[31m\033[1m{}\033[0m"'.format(str(model)))
     return model
 
 

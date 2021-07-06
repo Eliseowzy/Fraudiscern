@@ -12,6 +12,8 @@ import pandas as pd
 
 import hdfs_manager
 import spark_manager
+from pyspark.sql.functions import col
+from pyspark.sql.types import DoubleType
 
 _hdfs_client = hdfs_manager.get_hdfs_client()
 _spark_session = spark_manager.get_spark_session()
@@ -99,6 +101,8 @@ def load_data_from_hdfs(path):
     attributes.remove('zip')
     attributes.remove('unix_time')
     data_set = data_set.select(attributes)
+    for i in data_set.columns:
+        data_set = data_set.withColumn(i, col(i).cast(DoubleType()))
     # print(data_set.head(2))
     return data_set
 

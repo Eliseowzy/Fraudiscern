@@ -31,6 +31,9 @@ class classifier:
             self._model = RandomForestClassifierModel()
         self._predict_result = None
 
+    def __str__(self):
+        return "{}: {}".format(str(self._model_name), str(self._model))
+
     def set_data_set(self, data_set_path, test_proportion=0.05):
         """
         Set the data set of the classifier.
@@ -43,6 +46,7 @@ class classifier:
             None
 
         """
+
         self._data_set = data_loader.load_data_from_hdfs(data_set_path)
         # 划分训练集、测试集
         self._train_set, self._test_set = self._set_train_test_set(test_proportion)
