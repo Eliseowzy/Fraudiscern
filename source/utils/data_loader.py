@@ -70,7 +70,7 @@ def load_data_from_csv(path):
 def load_data_to_csv(data_set, path):
     """Load pandas dataframe to source csv file path.
 
-    Load pandas dataframe to source csv file path.
+    Load dataframe to source csv file path.
 
     Args:
         data_set (pandas.DataFrame):  A pandas data frame.

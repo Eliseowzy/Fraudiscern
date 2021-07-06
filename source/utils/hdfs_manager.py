@@ -36,4 +36,10 @@ def _create_hdfs_client():
     return hdfs_client
 
 
+def create_dir(hdfs_root="dataset/", folder_name="user_123"):
+    dir_name = hdfs_root + folder_name
+    GLOBAL_HDFS.makedirs(dir_name)
+    return "{} created successfully.".format(folder_name)
+
+
 GLOBAL_HDFS = _create_hdfs_client()

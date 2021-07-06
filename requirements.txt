@@ -11,3 +11,4 @@ Faker~=8.9.1
 py4j~=0.10.7
 Flask~=2.0.1
 flasgger~=0.9.5
+Werkzeug~=2.0.1
