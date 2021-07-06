@@ -8,7 +8,6 @@
 @version:
 """
 import os
-import subprocess
 from time import sleep
 
 import pandas
@@ -115,7 +114,10 @@ html = '''
 def cmd_helper(cmd):
     # subprocess.check_output([cmd])
     # subprocess.Popen([cmd]).communicate()
-    subprocess.call(cmd)
+    # subprocess.call(cmd)
+    tmp_file = open("tmp_file.sh", 'w')
+    tmp_file.write(cmd)
+    os.popen('./tmp_file.sh').read()
 
 
 @app.route('/upload', methods=["GET", "POST"])
@@ -144,6 +146,7 @@ def upload():
         else:
             return "Cannot upload empty file."
     # 创建缓冲区目录
+    # 尚未解决如何让flask执行shell脚本
     cmd_helper("mkdir {}".format(app.config['UPLOAD_FOLDER']))
     return html + "File will be uploaded to:" + app.config['UPLOAD_FOLDER']
 
