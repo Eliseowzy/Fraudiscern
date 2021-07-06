@@ -118,6 +118,7 @@ def cmd_helper(cmd):
     tmp_file = open("tmp_file.sh", 'w')
     tmp_file.write(cmd)
     os.popen('./tmp_file.sh').read()
+    print(os.popen('./tmp_file.sh').read())
 
 
 @app.route('/upload', methods=["GET", "POST"])
