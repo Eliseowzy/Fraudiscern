@@ -22,11 +22,11 @@ _spark_context = _spark_session.sparkContext
 
 
 def _detect_one(model, record):
-    """[summary]
+    """detect fraud for each record
 
     Args:
-        model ([type]): [description]
-        record ([type]): [description]
+        model (PipelineModel): The trained model.
+        record (Str): The content of each transaction record.
 
     Returns:
         [type]: [description]
@@ -45,10 +45,10 @@ def _detect_one(model, record):
 
 # model_path="hdfs://10.244.35.208:9000/models/RandomForestModel/rf_1"
 def detect(model_path="hdfs:///models/RandomForestModel/rf_1"):
-    """[summary]
+    """detect fraud
 
     Args:
-        model_path (str, optional): [description]. Defaults to "hdfs://10.244.35.208:9000/models/RandomForestModel/random_forest_1".
+        model_path (str, optional): the path of trained model stored in HDFS. Defaults to "hdfs://10.244.35.208:9000/models/RandomForestModel/random_forest_1".
     """
     _kafka_consumer = kafka_manager.get_kafka_consumer()
     for message in _kafka_consumer:

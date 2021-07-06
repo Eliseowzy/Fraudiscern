@@ -16,10 +16,8 @@ from data_generator import generate_transaction_data
 
 
 def stress_test_kafka_producer():
-    """[summary]
+    """Send transaction data to kafka cluster as a producer client
 
-    Returns:
-        [type]: [description]
     """
     producer = kafka_manager.get_kafka_producer()
     transaction_data_set = generate_transaction_data()

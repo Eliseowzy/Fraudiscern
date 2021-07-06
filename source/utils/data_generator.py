@@ -48,8 +48,8 @@ def generate_transaction_data(
         customer_data_path (str, optional): The profile of consumer. Defaults to "/home/hduser/fraudiscern/source/utils/data_generator_module/data/customers.csv".
         profile_path (str, optional): The profile of merchant, location etc.. Defaults to "/home/hduser/fraudiscern/source/utils/data_generator_module/profiles/adults_2550_female_rural"".json".
         start_date (str, optional): The start date of the data set. Defaults to "1-1-2012".
-        end_date (str, optional): [description]. Defaults to "1-31-2012".
-        file_path (str, optional): [description]. Defaults to "/home/hduser/fraudiscern/source/utils/data_generator_module/data/adults_2550_female_rural.csv".
+        end_date (str, optional): The end date of the data set. Defaults to "1-31-2012".
+        file_path (str, optional): The path of generated transaction data. Defaults to "/home/hduser/fraudiscern/source/utils/data_generator_module/data/adults_2550_female_rural.csv".
 
     Returns:
         pandas.DataFrame: The transaction data set.
