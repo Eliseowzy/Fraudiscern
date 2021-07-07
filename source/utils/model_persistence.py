@@ -8,9 +8,7 @@
 @version: 1.0
 """
 
-# from pyspark.ml.pipeline import PipelineModel
 
-# import sys
 import os
 
 from pyspark.ml.pipeline import PipelineModel

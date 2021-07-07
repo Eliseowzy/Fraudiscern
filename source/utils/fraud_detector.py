@@ -23,17 +23,6 @@ _spark_context = _spark_session.sparkContext
 
 classifier_instance = classifier()
 
-classifier_instance.set_data_set("hdfs://10.244.35.208:9000/dataset/dataset_1/fraudTest.csv")
-# print(test.head(3))
-classifier_instance.train_model()
-# classifier_instance.save_model()
-classifier_instance.predict()
-# validation module test
-classifier_instance.validate_model(validate_method='accuracy')
-classifier_instance.validate_model(validate_method='auc')
-classifier_instance.validate_model(validate_method='precision')
-classifier_instance.validate_model(validate_method='recall')
-
 
 def _detect_one(model, record):
     """detect fraud for each record
@@ -43,35 +32,39 @@ def _detect_one(model, record):
         record (Str): The content of each transaction record.
 
     Returns:
-        [type]: [description]
+        json: The result of detection.
     """
     record = _spark_session.read.json(_spark_context.parallelize([record]))
 
     for i in record.columns:
         record = record.withColumn(i, col(i).cast(DoubleType()))
-    # record = data_sampler.vectorize(record, 'is_fraud')
-    record = record.select("cc_num", "amt", "zip", "lat", "long", "city_pop", "unix_time", "merch_lat", "merch_long",
-                           "is_fraud")
-    detect_result = model.transform(record)
+    record_tmp = record.select(
+        ['amt', 'cc_num', 'city_pop', 'is_fraud', 'lat', 'long', 'merch_lat', 'merch_long', 'unix_time', 'zip'])
+    try:
+        record_tmp = _spark_session.createDataFrame(record_tmp)
+    except TypeError:
+        pass
+    record_tmp.show()
+    print(record_tmp.columns)
+    detect_result = model.transform(record_tmp)
     detect_result = detect_result.toPandas().to_json()
     return detect_result
 
 
 # model_path="hdfs://10.244.35.208:9000/models/RandomForestModel/rf_1"
-def detect(model_path="hdfs:///models/RandomForestModel/rf_1"):
+def detect(model_path="hdfs://10.244.35.208:9000/models/RandomForestModel/rf_2"):
     """detect fraud
 
     Args:
         model_path (str, optional): the path of trained model stored in HDFS. Defaults to "hdfs://10.244.35.208:9000/models/RandomForestModel/random_forest_1".
     """
     _kafka_consumer = kafka_manager.get_kafka_consumer()
+    model = model_persistence.load_model_from_file(model_path)
     for message in _kafka_consumer:
         message_content = json.loads(message.value.decode())
         print("Received message is: {}".format(message_content))
         if message_content:
             message_topic = message.topic
-            # model = model_persistence.load_model_from_file(model_path)
-            model = classifier_instance.load_model_from_memory()
             detect_result = _detect_one(model, message_content)
             print(detect_result)
 

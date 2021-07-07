@@ -19,7 +19,6 @@ def get_kafka_producer():
     Returns:
         [Object]: A Kafka client that publishes records to the Kafka cluster.
     """
-    # 实例化一个KafkaProducer示例，用于向Kafka投递消息
     producer = _create_kafka_producer()
     return producer
 

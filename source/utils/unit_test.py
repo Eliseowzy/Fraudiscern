@@ -28,7 +28,6 @@ def spark_manager_test():
     _logger.info("Start spark_manager unit test.")
     try:
         _logger.info("Try to import spark_manager.")
-        # spark_session = spark_manager.get_spark_session()
         command = "spark-submit --master yarn spark_manager.py"
         os.system(command)
     except Exception:
@@ -92,8 +91,6 @@ def model_persistence_test():
     print("Start Model Persistence Test.")
     model = model_persistence.load_model_from_file(model_path)
     print(model)
-    # except Exception:
-    #     _logger.error("Unit test for model_persistence_test.load_model_from_file is NOT pass.")
 
 
 def data_sampler_test():
@@ -126,10 +123,10 @@ def classifier_test():
     """[summary]
     """
     from source.classifier import classifier
-    # try:
+
     classifier_instance = classifier()
     classifier_instance.set_data_set("hdfs://10.244.35.208:9000/dataset/dataset_1/fraudTest.csv")
-    # print(test.head(3))
+
     classifier_instance.train_model()
     classifier_instance.save_model()
     classifier_instance.predict()
@@ -138,9 +135,7 @@ def classifier_test():
     classifier_instance.validate_model(validate_method='auc')
     classifier_instance.validate_model(validate_method='precision')
     classifier_instance.validate_model(validate_method='recall')
-
-    # except Exception:
-    #     _logger.error("Unit for classifier_test is NOT pass.")
+    classifier_instance.detect_fraud()
 
 
 def generator_test(function_name):
@@ -163,11 +158,6 @@ def generator_test(function_name):
             print(transaction_set.groupby('is_fraud').count())
     except Exception:
         _logger.error("Unit for generator_test.{} is NOT pass.".format(function_name))
-
-
-# def test_pipeline():
-# from source.classifier import classifier
-# classifier_instance = classifier()
 
 
 def main_test():

@@ -60,4 +60,3 @@ def generate_transaction_data(
     transaction_data_set = transaction_data_set[columns]
     transaction_data_set.to_csv(file_path, index=False)
     return transaction_data_set
-    # raise NotImplementedError("这里需要实现交易生成功能")

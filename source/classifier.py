@@ -8,19 +8,28 @@
 @version: 1.1
 """
 
+import json
+
+from pyspark.sql.functions import col
+from pyspark.sql.types import DoubleType
+
+import kafka_manager
+import spark_manager
 from source.models.random_forest_classifier import RandomForestClassifierModel
-from source.utils import logger, spark_manager, data_sampler, data_loader, hdfs_manager
+from source.utils import logger, data_sampler, data_loader, hdfs_manager
 
 # 日志, spark, hdfs单例
 _logger = logger.get_logger()
 _spark_session = spark_manager.get_spark_session()
 _hdfs_client = hdfs_manager.get_hdfs_client()
+_spark_context = _spark_session.sparkContext
 
 
 class classifier:
     def __init__(self, model_name='random_forest', target="is_fraud"):
         # 数据集
         self._data_set = None
+        self._data_schema = None
         self._train_set, self._test_set = None, None
         self._target = target
 
@@ -51,8 +60,9 @@ class classifier:
         # 划分训练集、测试集
         self._train_set, self._test_set = self._set_train_test_set(test_proportion)
         # 过采样
-        self._train_set = data_sampler.smote(
-            self._train_set, target=self._target)
+        # self._train_set = data_sampler.smote(
+        # self._train_set, target=self._target)
+        self._train_set = data_sampler.vectorize(self._train_set, self._target)
         self._test_set = data_sampler.vectorize(self._test_set, self._target)
         return self._train_set, self._test_set
 
@@ -133,3 +143,30 @@ class classifier:
 
     def load_model_from_memory(self):
         return self._model.get_model_from_memory()
+
+    def detect_fraud(self):
+        _kafka_consumer = kafka_manager.get_kafka_consumer()
+        for message in _kafka_consumer:
+            message_content = json.loads(message.value.decode())
+            print("Received message is: {}".format(message_content))
+            if message_content:
+                message_topic = message.topic
+                message_content = _spark_session.read.json(_spark_context.parallelize([message_content]))
+                message_content.show()
+                for i in message_content.columns:
+                    message_content = message_content.withColumn(i, col(i).cast(DoubleType()))
+                message_content.show()
+                tmp_message = message_content.select(
+                    ['amt', 'cc_num', 'city_pop', 'is_fraud', 'lat', 'long', 'merch_lat', 'merch_long', 'unix_time',
+                     'zip'])
+                tmp_message.show()
+                try:
+                    tmp_message = _spark_session.createDataFrame(tmp_message)
+                except TypeError:
+                    pass
+                tmp_message = data_sampler.vectorize(tmp_message, target_name='is_fraud')
+                detect_result = self.predict(tmp_message)
+                print(detect_result)
+                detect_result = detect_result.toPandas()
+                print(detect_result)
+        return

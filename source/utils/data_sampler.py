@@ -14,9 +14,12 @@ import numpy as np
 from pyspark.ml import Pipeline
 from pyspark.ml.feature import VectorAssembler
 from pyspark.sql import Row
-from pyspark.sql.types import StructType, StructField, DoubleType
+from pyspark.sql.functions import col
+from pyspark.sql.types import DoubleType
+from pyspark.sql.types import StructType, StructField
 from sklearn import neighbors
 
+import data_loader
 import spark_manager
 
 _spark_session = spark_manager.get_spark_session()
@@ -40,7 +43,7 @@ def _get_label_proportion(data_set, target):
     return label_proportion
 
 
-def _extract_numerical_attributes(data_set):
+def extract_numerical_attributes(data_set):
     """Extract numerical attributes. On spark numerical type includes 'IntegerType and DoubleType'.
 
     Args:
@@ -52,8 +55,10 @@ def _extract_numerical_attributes(data_set):
     attributes = data_set.columns
     attributes = attributes[1:]
     attributes_type = {}
+    data_set_schema = data_loader.get_data_set_schema("hdfs://10.244.35.208:9000/dataset/dataset_1/fraudTest.csv")
+    # print(data_set.schema)
     for attribute in attributes:
-        tmp = str(data_set.schema[attribute]).split(',')
+        tmp = str(data_set_schema[attribute]).split(',')
         if tmp[1] == "IntegerType" or tmp[1] == "DoubleType":
             attributes_type[attribute] = tmp[1]
     return attributes_type
@@ -70,13 +75,19 @@ def vectorize(data_set, target_name):
         pyspark.sql.dataframe.DataFrame: {features: denseVector(), labels: labels of the attributes.}
     """
     # print(_extract_numerical_attributes(data_set))
-    num_cols = _extract_numerical_attributes(data_set).keys()
+    num_cols = extract_numerical_attributes(data_set).keys()
     num_cols = list(num_cols)
+    print("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
+    print(num_cols)
+    # exit(0)
     # if data_set.select(target_name).distinct().count() != 2 or data_set.select(target_name).distinct().count() != 1:
     #     raise ValueError("Target col must have exactly 2 classes")
+    for i in num_cols:
+        data_set = data_set.withColumn(i, col(i).cast("Double"))
     if target_name in num_cols:
         num_cols.remove(target_name)
     # only assembled numeric columns into features
+
     assembler = VectorAssembler(inputCols=num_cols, outputCol='features')
     pipeline = Pipeline(stages=[assembler])
     pos_vectorized = pipeline.fit(data_set).transform(data_set)
@@ -100,7 +111,6 @@ def _split_column(data_set, features: list):
         pyspark.sql.dataframe.DataFrame: A data frame the structure: {v1: value_1, v2: value_2, v3: value_3,...vn, value_n, labels: 1}
     """
     schema = None
-    print("schema是schema是schema是schema是schema是schema是schema是schema是：{}".format(schema))
 
     def _create_schema_str(_data_set, _features: list):
         str_schema = "schema = StructType(["
@@ -112,7 +122,6 @@ def _split_column(data_set, features: list):
         return str_schema
 
     schema_str = _create_schema_str(data_set, features)
-    print(schema_str + "是是是是")
     # exec(schema_str)
     # print("schema是schema是schema是schema是schema是schema是schema是schema是：{}".format(schema))
     schema = StructType([StructField('zip', DoubleType(), True), StructField('lat', DoubleType(), True),
@@ -128,8 +137,7 @@ def _split_column(data_set, features: list):
         tmp_df = _spark_session.sparkContext.parallelize(
             [tmp_ls]).toDF(data_set.columns)
         final_df = final_df.union(tmp_df)
-    print("Result is:")
-    print(final_df.head(1))
+
     return final_df
 
 
@@ -158,6 +166,8 @@ def _smote_sampling(vectorized, k=5, minority_class=1, majority_class=0, percent
     feature = feature.rdd
     feature = feature.map(lambda x: x[0])
     feature = feature.collect()
+    print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
+    print(str(feature))
     feature = np.asarray(feature)
     nbrs = neighbors.NearestNeighbors(n_neighbors=k, algorithm='auto').fit(feature)
     neighbours = nbrs.kneighbors(feature)
@@ -199,12 +209,10 @@ def smote(data_set, target='is_fraud'):
     count_2 = label_proportion[keys[1]]
     ratio = max(count_1, count_2) / min(count_1, count_2)
     new_data_set = None
+    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    print(str(data_set.columns))
     if ratio > 5:
         # print("start smote")
-        # sampling
         new_data_set = _smote_sampling(vectorize(data_set, target_name=target))
-        # column_names = list(_extract_numerical_attributes(data_set).keys())
-        # column_names = column_names[1:]
-        # # print(column_names)
         # new_data_set = _split_column(new_data_set, column_names)
     return new_data_set

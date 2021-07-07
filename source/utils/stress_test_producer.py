@@ -9,9 +9,6 @@
 import time
 
 import kafka_manager
-# from pyspark import SparkContext
-# from pyspark.streaming import StreamingContext
-# from pyspark.streaming.kafka import KafkaUtils
 from data_generator import generate_transaction_data
 
 
@@ -22,7 +19,7 @@ def stress_test_kafka_producer():
     producer = kafka_manager.get_kafka_producer()
     transaction_data_set = generate_transaction_data()
     for index, row in transaction_data_set.iterrows():
-        time.sleep(0.5)  # Send a piece of transaction every 0.1 second.
+        # Send a piece of transaction every 0.1 second.
         data = row.to_json()
 
         producer.send(topic='test_data', value=data)
