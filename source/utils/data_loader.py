@@ -98,8 +98,10 @@ def load_data_from_hdfs(path):
     data_set = _spark_session.read.csv(path=path, inferSchema=True, sep=',', header=True)
     # print(data_set.columns)
     attributes = data_set.columns[1:]
-    attributes.remove('zip')
-    attributes.remove('unix_time')
+    if 'zip' in attributes:
+        attributes.remove('zip')
+    if 'unix_time' in attributes:
+        attributes.remove('unix_time')
     data_set = data_set.select(attributes)
     for i in data_set.columns:
         data_set = data_set.withColumn(i, col(i).cast(DoubleType()))

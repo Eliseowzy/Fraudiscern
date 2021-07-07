@@ -130,3 +130,6 @@ class classifier:
 
     def load_model(self, path="hdfs://10.244.35.208:9000/models/RandomForestModel/random_forest_1"):
         return self._model.load_model(path=path)
+
+    def load_model_from_memory(self):
+        return self._model.get_model_from_memory()

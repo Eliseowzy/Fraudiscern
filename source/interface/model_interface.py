@@ -52,3 +52,7 @@ class model_interface(metaclass=ABCMeta):
             path (str): The source path.
         """
         pass
+
+    @abstractmethod
+    def get_model_from_memory(self):
+        pass

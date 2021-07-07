@@ -135,3 +135,7 @@ class RandomForestClassifierModel(model_interface):
         """
         self._model_object = model_persistence.load_model_from_file(path)
         return None
+
+    def get_model_from_memory(self):
+        if self._model_object:
+            return self._model_object

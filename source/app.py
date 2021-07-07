@@ -10,6 +10,7 @@
 import os
 from time import sleep
 
+import hdfs
 import pandas
 import pyspark.sql
 from flasgger import Swagger
@@ -52,8 +53,9 @@ def _init_load_data():
         # If the data description has been generated and it is not changed, return it directly.
         return
     else:
-        source_path = _hdfs_config["hdfs_base"] + _hdfs_config["hdfs_root"] + _hdfs_config[
-            "hdfs_data_set_name"]
+        source_path = _hdfs_config["hdfs_base"] + _hdfs_config["hdfs_root"] + _hdfs_config["hdfs_folder_name"] + '/' + \
+                      _hdfs_config[
+                          "hdfs_data_set_name"]
         _data_set = data_loader.load_data_from_hdfs(path=source_path)
         _data_set = _data_set.select(["amt", "lat", "long", "city_pop", "merch_lat", "merch_long",
                                       "is_fraud"])
@@ -62,7 +64,7 @@ def _init_load_data():
         # data_set_description = data_set_description.to_html()
         # data_set_description = str(data_set_description)
         _is_finished["describe_data_set"] = True
-        return
+    return
 
 
 def _init_preprocess():
@@ -111,16 +113,6 @@ html = '''
     '''
 
 
-def cmd_helper(cmd):
-    # subprocess.check_output([cmd])
-    # subprocess.Popen([cmd]).communicate()
-    # subprocess.call(cmd)
-    tmp_file = open("tmp_file.sh", 'w')
-    tmp_file.write(cmd)
-    os.popen('./tmp_file.sh').read()
-    print(os.popen('./tmp_file.sh').read())
-
-
 @app.route('/upload', methods=["GET", "POST"])
 def upload():
     global _hdfs_config, _hdfs_client
@@ -130,25 +122,39 @@ def upload():
             print(request.files)
 
             file_name = secure_filename(file_object.filename)
+            _hdfs_config["hdfs_data_set_name"] = file_name
 
             # 上传到服务器缓冲区
-            file_object.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
-
-            sleep(2)
+            if not os.path.exists(app.config['UPLOAD_FOLDER'] + file_name):
+                file_object.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
+            sleep(1)
             # 构造hdfs_地址
             hdfs_path_to_folder = _hdfs_config["hdfs_root"] + _hdfs_config[
                 "hdfs_folder_name"]
-            # 从服务器缓冲区上传到hdfs, 子线程上传
-            cmd_helper("hadoop fs -put {} {}".format(app.config['UPLOAD_FOLDER'] + file_name,
-                                                     hdfs_path_to_folder + '/' + file_name))
+            # 从服务器缓冲区上传到hdfs, 子线程上传, 目前在flask中执行shell脚本的功能还无法较好的实现
+            # import cmd_helper
+            # cmd_helper.cmd_helper("hadoop fs -put {} {}".format(app.config['UPLOAD_FOLDER'] + file_name,
+            #                                                     hdfs_path_to_folder + '/' + file_name))
+            # 也可以调库
+            try:
+                _hdfs_client.upload(hdfs_path_to_folder + '/' + file_name, app.config['UPLOAD_FOLDER'] + file_name,
+                                    n_threads=3)
+            except hdfs.HdfsError:
+                _is_finished["load_data_set"] = True
+                return "File {} already exists!".format(hdfs_path_to_folder + '/' + file_name)
+                pass
+            # _hdfs_client.upload("/dataset/user_12345/analyzer.py", app.config['UPLOAD_FOLDER'] + file_name)
             _is_finished["load_data_set"] = True
             return html + "Upload finished!" + "hadoop fs -put {}  {}".format(app.config['UPLOAD_FOLDER'] + file_name,
                                                                               hdfs_path_to_folder + '/' + file_name)
         else:
             return "Cannot upload empty file."
     # 创建缓冲区目录
-    # 尚未解决如何让flask执行shell脚本
-    cmd_helper("mkdir {}".format(app.config['UPLOAD_FOLDER']))
+    # 尚未解决如何让flask执行shell脚本，
+    # import cmd_helper
+    # cmd_helper.cmd_helper("mkdir {}".format(app.config['UPLOAD_FOLDER']))
+    if not os.path.exists(app.config['UPLOAD_FOLDER']):
+        os.mkdir(app.config['UPLOAD_FOLDER'])
     return html + "File will be uploaded to:" + app.config['UPLOAD_FOLDER']
 
 

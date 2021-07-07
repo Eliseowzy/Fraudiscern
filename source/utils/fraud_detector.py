@@ -16,9 +16,23 @@ from pyspark.sql.types import DoubleType
 import kafka_manager
 import model_persistence
 import spark_manager
+from source.classifier import classifier
 
 _spark_session = spark_manager.get_spark_session()
 _spark_context = _spark_session.sparkContext
+
+classifier_instance = classifier()
+
+classifier_instance.set_data_set("hdfs://10.244.35.208:9000/dataset/dataset_1/fraudTest.csv")
+# print(test.head(3))
+classifier_instance.train_model()
+# classifier_instance.save_model()
+classifier_instance.predict()
+# validation module test
+classifier_instance.validate_model(validate_method='accuracy')
+classifier_instance.validate_model(validate_method='auc')
+classifier_instance.validate_model(validate_method='precision')
+classifier_instance.validate_model(validate_method='recall')
 
 
 def _detect_one(model, record):
@@ -56,7 +70,8 @@ def detect(model_path="hdfs:///models/RandomForestModel/rf_1"):
         print("Received message is: {}".format(message_content))
         if message_content:
             message_topic = message.topic
-            model = model_persistence.load_model_from_file(model_path)
+            # model = model_persistence.load_model_from_file(model_path)
+            model = classifier_instance.load_model_from_memory()
             detect_result = _detect_one(model, message_content)
             print(detect_result)
 
