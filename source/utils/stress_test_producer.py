@@ -21,7 +21,7 @@ def stress_test_kafka_producer():
     for index, row in transaction_data_set.iterrows():
         # Send a piece of transaction every 0.1 second.
         data = row.to_json()
-
+        time.sleep(1)
         producer.send(topic='test_data', value=data)
         print("{} has been send".format(data))
     return None

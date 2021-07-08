@@ -38,6 +38,7 @@ def _detect_one(model, record):
 
     for i in record.columns:
         record = record.withColumn(i, col(i).cast(DoubleType()))
+    # record = data_sampler.vectorize(record, 'is_fraud')
     record_tmp = record.select(
         ['amt', 'cc_num', 'city_pop', 'is_fraud', 'lat', 'long', 'merch_lat', 'merch_long', 'unix_time', 'zip'])
     try:
@@ -45,7 +46,7 @@ def _detect_one(model, record):
     except TypeError:
         pass
     record_tmp.show()
-    print(record_tmp.columns)
+    # print(record_tmp.columns)
     detect_result = model.transform(record_tmp)
     detect_result = detect_result.toPandas().to_json()
     return detect_result

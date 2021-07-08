@@ -124,18 +124,18 @@ def upload():
             file_name = secure_filename(file_object.filename)
             _hdfs_config["hdfs_data_set_name"] = file_name
 
-            # 上传到服务器缓冲区
+            # Upload file to server buffer.
             if not os.path.exists(app.config['UPLOAD_FOLDER'] + file_name):
                 file_object.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
             sleep(1)
-            # 构造hdfs_地址
+            # Compose hdfs_address.
             hdfs_path_to_folder = _hdfs_config["hdfs_root"] + _hdfs_config[
                 "hdfs_folder_name"]
             # 从服务器缓冲区上传到hdfs, 子线程上传, 目前在flask中执行shell脚本的功能还无法较好的实现
+            # Upload to hdfs
             # import cmd_helper
             # cmd_helper.cmd_helper("hadoop fs -put {} {}".format(app.config['UPLOAD_FOLDER'] + file_name,
             #                                                     hdfs_path_to_folder + '/' + file_name))
-            # 也可以调库
             try:
                 _hdfs_client.upload(hdfs_path_to_folder + '/' + file_name, app.config['UPLOAD_FOLDER'] + file_name,
                                     n_threads=3)
@@ -149,7 +149,7 @@ def upload():
                                                                               hdfs_path_to_folder + '/' + file_name)
         else:
             return "Cannot upload empty file."
-    # 创建缓冲区目录
+    # Make buffer dictionary.
     # 尚未解决如何让flask执行shell脚本，
     # import cmd_helper
     # cmd_helper.cmd_helper("mkdir {}".format(app.config['UPLOAD_FOLDER']))

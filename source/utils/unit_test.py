@@ -161,17 +161,17 @@ def generator_test(function_name):
 
 
 def main_test():
-    """[summary]
+    """Entry to Unit test
     """
-    # spark_manager_test()
-    # generator_test("gen_transaction")
+    spark_manager_test()
+    generator_test("gen_transaction")
     classifier_test()
-    # model_persistence_test()
-    # data_sampler_test()
-    # data_loader_test(function='load_data_to_csv')
-    # data_loader_test(function='load_data_from_hdfs')
+    model_persistence_test()
+    data_sampler_test()
+    data_loader_test(function='load_data_to_csv')
+    data_loader_test(function='load_data_from_hdfs')
 
-    # hdfs_manager_test()
+    hdfs_manager_test()
     exit(0)
 
 

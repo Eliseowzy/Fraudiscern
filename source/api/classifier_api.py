@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """
-@author: 
+@author: Wang Zhiyi
 @file: classifier_api.py
 @time: 6/30/2021
-@version:
+@version: V1.0
 """
 from source.classifier import classifier
 

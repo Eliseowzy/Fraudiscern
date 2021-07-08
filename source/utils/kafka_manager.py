@@ -17,7 +17,7 @@ def get_kafka_producer():
     """return a kafka consumer instance.
 
     Returns:
-        [Object]: A Kafka client that publishes records to the Kafka cluster.
+        kafka.producer.kafka.KafkaProducer: A Kafka client that publishes records to the Kafka cluster.
     """
     producer = _create_kafka_producer()
     return producer
@@ -27,7 +27,7 @@ def _create_kafka_producer():
     """Create a kafka producer
 
     Returns:
-        [Object]: A Kafka client that publishes records to the Kafka cluster.
+        kafka.producer.kafka.KafkaProducer: A Kafka client that publishes records to the Kafka cluster.
     """
     kafka_producer = KafkaProducer(value_serializer=lambda v: json.dumps(v).encode('utf-8'),
                                    bootstrap_servers=['spark-797d5ccdb-2d4wd', 'spark-797d5ccdb-2jmdw',
@@ -54,7 +54,7 @@ def get_kafka_consumer():
     """return a kafka consumer instance
 
     Returns:
-        [Object]: A client that consumes records from a Kafka cluster.
+        kafka.consumer.group.KafkaConsumer: A client that consumes records from a Kafka cluster.
     """
 
     consumer = _create_kafka_consumer()
@@ -65,7 +65,7 @@ def _create_kafka_consumer():
     """Crete a kafka consumer.
 
     Returns:
-        [Object]: A client that consumes records from a Kafka cluster.
+        kafka.consumer.group.KafkaConsumer: A client that consumes records from a Kafka cluster.
     """
     kafka_consumer = KafkaConsumer('test_data', bootstrap_servers=['spark-797d5ccdb-2d4wd', 'spark-797d5ccdb-2jmdw',
                                                                    'spark-797d5ccdb-4sq79', 'spark-797d5ccdb-6hsdc',
