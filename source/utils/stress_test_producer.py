@@ -27,4 +27,9 @@ def stress_test_kafka_producer(start_date="1-1-2012", end_date="1-31-2012", freq
     return None
 
 
-stress_test_kafka_producer()
+def main():
+    stress_test_kafka_producer()
+
+
+if __name__ == '_main__':
+    main()

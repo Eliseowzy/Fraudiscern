@@ -68,12 +68,11 @@ def detect(model_path="hdfs://10.244.35.208:9000/models/RandomForestModel/rf_2")
         if message_content:
             message_topic = message.topic
             detect_result = _detect_one(model, message_content)
-            detect_result = json.loads(detect_result)
-            detect_label = detect_result["prediction"]
+
             # send detect result to kafka
-            _result_producer.send(topic='detect_result', value=detect_label["0"])
-            print("Predict result is: {}".format(detect_label["0"]))
-            print("Predict result is: {}".format(detect_label))
+            _result_producer.send(topic='detect_result', value=detect_result)
+            # print("Predict result is: {}".format(detect_label["0"]))
+            # print("Predict result is: {}".format(detect_label))
 
 
 def main():

@@ -160,6 +160,30 @@ def generator_test(function_name):
         _logger.error("Unit for generator_test.{} is NOT pass.".format(function_name))
 
 
+def kafka_test():
+    try:
+        import kafka_manager
+        from data_generator import generate_transaction_data
+        import time
+        import json
+        producer = kafka_manager.get_kafka_producer()
+        transaction_data_set = generate_transaction_data()
+        test_topic = 'test_data'
+        for index, row in transaction_data_set.iterrows():
+            # Send a piece of transaction every 0.1 second.
+            data = row.to_json()
+            time.sleep(0.1)
+            producer.send(topic=test_topic, value=data)
+            print("{} has been send".format(data))
+        consumer = kafka_manager.get_kafka_consumer(topic=test_topic)
+        for message in consumer:
+            message_content = json.loads(message.value.decode())
+            message_topic = message.topic
+            print("{} is received".format(message_content))
+    except Exception:
+        _logger.error("Unit for kafka_test is NOT pass.")
+
+
 def main_test():
     """Entry to Unit test
     """
