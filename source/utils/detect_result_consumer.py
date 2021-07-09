@@ -3,7 +3,7 @@
 
 """
 @author: Wang Zhiyi
-@file: stress_test_consumer.py
+@file: detect_result_consumer.py
 @time: 7/4/2021
 @version:
 """
@@ -23,10 +23,3 @@ def stress_test_consumer():
         print(message_topic)
         print(message_content)
 
-
-def main():
-    stress_test_consumer()
-
-
-if __name__ == '__main__':
-    main()

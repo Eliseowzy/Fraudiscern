@@ -32,7 +32,7 @@ def generate_customer_data(customer_number=10, seed=4444,
     for _ in range(customer_number):
         fake_customer_df = Customer(customer_profile_path=profile_path, seed=seed).to_pandas_dataframe()
         data = data.append(fake_customer_df)
-    data.to_csv(file_path, index=False)
+    # data.to_csv(file_path, index=False)
     return data
 
 
@@ -58,5 +58,5 @@ def generate_transaction_data(
                                   start_date=start_date, end_date=end_date, file_path=file_path)
     columns = ['cc_num', 'amt', 'zip', 'lat', 'long', 'city_pop', 'unix_time', 'merch_lat', 'merch_long', 'is_fraud']
     transaction_data_set = transaction_data_set[columns]
-    transaction_data_set.to_csv(file_path, index=False)
+    # transaction_data_set.to_csv(file_path, index=False)
     return transaction_data_set

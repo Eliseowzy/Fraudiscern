@@ -45,7 +45,7 @@ def _detect_one(model, record):
         record_tmp = _spark_session.createDataFrame(record_tmp)
     except TypeError:
         pass
-    record_tmp.show()
+    # record_tmp.show()
     # print(record_tmp.columns)
     detect_result = model.transform(record_tmp)
     detect_result = detect_result.toPandas().to_json()
@@ -61,18 +61,24 @@ def detect(model_path="hdfs://10.244.35.208:9000/models/RandomForestModel/rf_2")
     """
     _kafka_consumer = kafka_manager.get_kafka_consumer()
     model = model_persistence.load_model_from_file(model_path)
+    _result_producer = kafka_manager.get_kafka_producer()
     for message in _kafka_consumer:
         message_content = json.loads(message.value.decode())
-        print("Received message is: {}".format(message_content))
+        # print("Received message is: {}".format(message_content))
         if message_content:
             message_topic = message.topic
             detect_result = _detect_one(model, message_content)
-            print(detect_result)
+            detect_result = json.loads(detect_result)
+            detect_label = detect_result["prediction"]
+            # send detect result to kafka
+            _result_producer.send(topic='detect_result', value=detect_label["0"])
+            print("Predict result is: {}".format(detect_label["0"]))
+            print("Predict result is: {}".format(detect_label))
 
 
 def main():
     detect()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

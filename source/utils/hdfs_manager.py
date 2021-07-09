@@ -8,6 +8,7 @@
 @version: 1.0
 """
 
+import hdfs
 from hdfs import InsecureClient
 
 
@@ -38,8 +39,30 @@ def _create_hdfs_client():
 
 def create_dir(hdfs_root="dataset/", folder_name="user_123"):
     dir_name = hdfs_root + folder_name
-    GLOBAL_HDFS.makedirs(dir_name)
+    try:
+        GLOBAL_HDFS.makedirs(dir_name)
+    except hdfs.HdfsError:
+        return "Root folder: {} not exits.".format(hdfs_root)
     return "{} created successfully.".format(folder_name)
+
+
+def create_file(hdfs_path, data_set=None, overwrite=False, permission=None, block_size=None, replication=None,
+                buffer_size=None,
+                append=False, encoding='utf-8'):
+    try:
+        GLOBAL_HDFS.write(hdfs_path, data=data_set, overwrite=overwrite, permission=permission, blocksize=block_size,
+                          replication=replication,
+                          buffersize=buffer_size,
+                          append=append, encoding=encoding)
+    except hdfs.HdfsError:
+        return "File: {} already exists.".format(hdfs_path)
+
+
+def synchronize_file(hdfs_path, local_path, n_thread=3):
+    try:
+        GLOBAL_HDFS.upload(hdfs_path, local_path, n_threads=3)
+    except hdfs.HdfsError:
+        return "File {} already exists!".format(hdfs_path)
 
 
 GLOBAL_HDFS = _create_hdfs_client()

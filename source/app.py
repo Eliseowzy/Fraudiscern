@@ -10,7 +10,6 @@
 import os
 from time import sleep
 
-import hdfs
 import pandas
 import pyspark.sql
 from flasgger import Swagger
@@ -122,6 +121,10 @@ def upload():
             print(request.files)
 
             file_name = secure_filename(file_object.filename)
+            word_list = file_name.split('.')
+            if word_list[1] != 'csv':
+                return "Only support .csv format data set!"
+
             _hdfs_config["hdfs_data_set_name"] = file_name
 
             # Upload file to server buffer.
@@ -136,13 +139,9 @@ def upload():
             # import cmd_helper
             # cmd_helper.cmd_helper("hadoop fs -put {} {}".format(app.config['UPLOAD_FOLDER'] + file_name,
             #                                                     hdfs_path_to_folder + '/' + file_name))
-            try:
-                _hdfs_client.upload(hdfs_path_to_folder + '/' + file_name, app.config['UPLOAD_FOLDER'] + file_name,
-                                    n_threads=3)
-            except hdfs.HdfsError:
-                _is_finished["load_data_set"] = True
-                return "File {} already exists!".format(hdfs_path_to_folder + '/' + file_name)
-                pass
+            target_path = hdfs_path_to_folder + '/' + file_name
+            source_path = app.config['UPLOAD_FOLDER'] + file_name
+            hdfs_manager.synchronize_file(hdfs_path=target_path, local_path=source_path)
             # _hdfs_client.upload("/dataset/user_12345/analyzer.py", app.config['UPLOAD_FOLDER'] + file_name)
             _is_finished["load_data_set"] = True
             return html + "Upload finished!" + "hadoop fs -put {}  {}".format(app.config['UPLOAD_FOLDER'] + file_name,
@@ -189,7 +188,7 @@ def preprocess():
 """
 
 
-@app.route('/train-model', methods=['GET', 'POST'])
+@app.route('/train_model', methods=['GET', 'POST'])
 def train_model():
     global _classifier_instance, _hdfs_config
     model_name = request.form.get("model_name")
@@ -199,6 +198,35 @@ def train_model():
     data_set_path = _hdfs_config["hdfs_base"] + _hdfs_config["hdfs_root"] + _hdfs_config["hdfs_folder_name"] + \
                     _hdfs_config["hdfs_data_set_name"]
     classifier_instance.set_data_set(data_set_path=data_set_path)
+
+
+@app.route('/experiment', methods=['GET', 'POST'])
+def experiment():
+    global _classifier_instance, _hdfs_config
+    # receive start_date and end_date
+    start_date = request.form.get("start_date")
+    end_date = request.form.get("end_date")
+    count = request.form.get("count")
+    frequency = request.form.get("frequency")
+    try:
+        count = int(count)
+    except ValueError:
+        return "The count of records should be integer type. Cannot cast string into int."
+    try:
+        frequency = float(frequency)
+    except ValueError:
+        return "The frequency of input should be numerical type. Cannot cast string into numerical."
+
+    import data_generator
+    _fake_data_set = data_generator.generate_transaction_data(start_date=start_date, end_date=end_date)
+    hdfs_path = _hdfs_config["hdfs_base"] + _hdfs_config["hdfs_root"] + _hdfs_config[
+        "hdfs_folder_name"] + "fake_data_set.csv"
+    hdfs_manager.create_file(hdfs_path, data_set=_fake_data_set.to_csv())
+
+    import stress_test_producer
+    import fraud_detector
+    fraud_detector.detect()
+    stress_test_producer.stress_test_kafka_producer(start_date=start_date, end_date=end_date, frequency=frequency)
 
 
 swagger = Swagger(app)
