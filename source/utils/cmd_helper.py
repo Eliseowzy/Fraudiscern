@@ -71,11 +71,11 @@ def help_start_generator(container_count=3):
     # cmd = "ls"
     # _execute_cmd(cmd)
     for server in _servers[:container_count]:
-        print("start generator on server {}".format(str(server)))
-        cmd_install_python_packages = "pip install -r packages.txt"
+        print("start server {}".format(str(server)))
+        # cmd_install_python_packages = "pip install -r packages.txt"
         cmd_submit_generator = "spark-submit --master yarn /home/hduser/fraudiscern/source/utils/stress_test_producer.py --py-files /home/hduser/fraudiscern/source/utils/dependencies_v1.zip"
         execute_remote_cmd(str(server), cmd_submit_generator)
 
 
 if __name__ == '__main__':
-    help_start_generator(container_count=30)
+    help_start_generator(container_count=2)

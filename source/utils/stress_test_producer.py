@@ -31,5 +31,5 @@ def main():
     stress_test_kafka_producer()
 
 
-if __name__ == '_main__':
+if __name__ == '__main__':
     main()
