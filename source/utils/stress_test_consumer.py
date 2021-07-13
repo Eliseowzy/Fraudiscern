@@ -10,7 +10,6 @@
 
 import json
 
-import cmd_helper
 import kafka_manager
 
 _producer_count = 5
@@ -19,7 +18,6 @@ _kafka_consumer_message = kafka_manager.get_kafka_consumer()
 
 
 def stress_test():
-    cmd_helper.help_start_generator(container_count=1)
     _record_count = 0
     _fraud_count = 0
     _normal_count = 0
