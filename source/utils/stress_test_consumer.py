@@ -4,7 +4,7 @@
 """
 @author: Wang Zhiyi
 @file: stress_test_consumer.py
-@time: 7/4/2021
+@time: 7/13/2021
 @version:
 """
 
@@ -23,19 +23,31 @@ def stress_test():
     _record_count = 0
     _fraud_count = 0
     _normal_count = 0
+    detect_result = {"record_count": None,
+                     "fraud_count": None,
+                     "normal_count": None,
+                     "current_message": None,
+                     "prediction": None}
     for message in _kafka_consumer_result:
         result = json.loads(message.value.decode())
-        print(result)
+        result.replace("\'", "\"")
+        # print(type(result))
+        # print(result)
+        result = json.loads(result)
         if result:
             _record_count += 1
-            detect_result = json.loads(result)
-            detect_label = detect_result["prediction"]
-            label = int(detect_label["0"])
+            label = result["prediction"]
             if label:
                 _fraud_count += 1
             else:
                 _normal_count += 1
-    return _record_count, _fraud_count, _normal_count
+            detect_result["record_count"] = _record_count
+            detect_result["fraud_count"] = _fraud_count
+            detect_result["normal_count"] = _normal_count
+            detect_result["current_message"] = result
+            detect_result["prediction"] = label
+        print(detect_result)
+    return
 
 
 def main():

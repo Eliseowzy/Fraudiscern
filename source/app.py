@@ -223,8 +223,8 @@ def experiment():
         "hdfs_folder_name"] + "fake_data_set.csv"
     hdfs_manager.create_file(hdfs_path, data_set=_fake_data_set.to_csv())
 
-    import stress_test_producer
-    import fraud_detector
+    import fraud_detector, kafka_manager, stress_test_producer
+    _kafka_consumer_result = kafka_manager.get_kafka_consumer(topic="detect_result")
     fraud_detector.detect()
     stress_test_producer.stress_test_kafka_producer(start_date=start_date, end_date=end_date, frequency=frequency)
 
