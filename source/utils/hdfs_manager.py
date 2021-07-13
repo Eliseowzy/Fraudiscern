@@ -65,4 +65,9 @@ def synchronize_file(hdfs_path, local_path, n_thread=3):
         return "File {} already exists!".format(hdfs_path)
 
 
+def get_file_names(path):
+    file_list = GLOBAL_HDFS.list(hdfs_path=path)
+    return file_list
+
+
 GLOBAL_HDFS = _create_hdfs_client()

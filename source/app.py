@@ -7,6 +7,7 @@
 @time: 7/6/2021
 @version:
 """
+import json
 import os
 from time import sleep
 
@@ -32,7 +33,8 @@ _hdfs_client = hdfs_manager.get_hdfs_client()
 _hdfs_config = {"hdfs_base": "hdfs://10.244.35.208:9000/",
                 "hdfs_root": "/dataset/",
                 "hdfs_folder_name": "",
-                "hdfs_data_set_name": "fraudTest.csv"}
+                "hdfs_data_set_name": "fraudTest.csv",
+                "hdfs_model_name": ""}
 # bool数据是否导入
 _is_finished = {
     "load_data_set": False,
@@ -114,7 +116,9 @@ html = '''
 
 @app.route('/upload', methods=["GET", "POST"])
 def upload():
-    global _hdfs_config, _hdfs_client
+    global _hdfs_config, _hdfs_client, _data_set_description
+    global _data_set_description
+
     if request.method == "POST":
         file_object = request.files['file']
         if file_object:
@@ -144,8 +148,10 @@ def upload():
             hdfs_manager.synchronize_file(hdfs_path=target_path, local_path=source_path)
             # _hdfs_client.upload("/dataset/user_12345/analyzer.py", app.config['UPLOAD_FOLDER'] + file_name)
             _is_finished["load_data_set"] = True
-            return html + "Upload finished!" + "hadoop fs -put {}  {}".format(app.config['UPLOAD_FOLDER'] + file_name,
-                                                                              hdfs_path_to_folder + '/' + file_name)
+            # return html + "Upload finished!" + "hadoop fs -put {}  {}".format(app.config['UPLOAD_FOLDER'] + file_name,
+            #                                                                   hdfs_path_to_folder + '/' + file_name)
+            _init_load_data()
+            return _data_set_description
         else:
             return "Cannot upload empty file."
     # Make buffer dictionary.
@@ -159,9 +165,30 @@ def upload():
 
 @app.route('/visualization', methods=["GET", "POST"])
 def visualization():
-    global _data_set_description
-    _init_load_data()
-    return jsonify(_data_set_description.to_json())
+    global _data_set
+    if not request.form.get("select_file"):
+        # 获取hdfs文件下的所有文件名
+        hdfs_path = _hdfs_config["hdfs_base"] + _hdfs_config["hdfs_folder_name"]
+        file_names = hdfs_manager.get_file_names(hdfs_path)
+        return file_names
+    if request.form.get("select_file"):
+        # 返回前几行
+        file_name = request.form.get("select_file")
+        _hdfs_config["hdfs_data_set_name"] = file_name
+        hdfs_path = _hdfs_config["hdfs_root"] + _hdfs_config["hdfs_folder_name"] + _hdfs_config["hdfs_data_set_name"]
+        _data_set = data_loader.load_data_from_hdfs(path=hdfs_path)
+        _data_set_tmp = _data_set.toPandas()
+        _data_set_tmp = pandas.DataFrame(_data_set_tmp)
+        _count = len(_data_set_tmp)
+        _result = ""
+        if _count > 1000:
+
+            _result = _data_set_tmp.head(1000)
+        else:
+            _result = _data_set_tmp
+        _result = _data_set_tmp.to_json()
+        _result = json.dumps(_result)
+        return _result
 
 
 @app.route('/preprocess', methods=["GET", "POST"])
@@ -191,42 +218,58 @@ def preprocess():
 @app.route('/train_model', methods=['GET', 'POST'])
 def train_model():
     global _classifier_instance, _hdfs_config
-    model_name = request.form.get("model_name")
-    target = request.form.get("target")
-    _train_ratio = float(request.form.get("train_ratio"))
-    classifier_instance = classifier(model_name=model_name, target=target)
-    data_set_path = _hdfs_config["hdfs_base"] + _hdfs_config["hdfs_root"] + _hdfs_config["hdfs_folder_name"] + \
-                    _hdfs_config["hdfs_data_set_name"]
-    classifier_instance.set_data_set(data_set_path=data_set_path)
+    if request.form.get("model_name"):
+        model_name = request.form.get("model_name")
+        target = request.form.get("target")
+        test_ratio = float(request.form.get("test_ratio"))
+        if model_name == "random_forest" and target and test_ratio:
+            _classifier_instance = classifier(model_name=model_name, target=target)
+            data_set_path = _hdfs_config["hdfs_base"] + _hdfs_config["hdfs_root"] + _hdfs_config["hdfs_folder_name"] + \
+                            _hdfs_config["hdfs_data_set_name"]
+            _classifier_instance.set_data_set(data_set_path=data_set_path, test_proportion=test_ratio)
+            _classifier_instance.train_model()
+
+            hdfs_path_to_folder = _hdfs_config["hdfs_root"] + _hdfs_config[
+                "hdfs_folder_name"]
+            # 从服务器缓冲区上传到hdfs, 子线程上传, 目前在flask中执行shell脚本的功能还无法较好的实现
+            # Upload to hdfs
+            # import cmd_helper
+            # cmd_helper.cmd_helper("hadoop fs -put {} {}".format(app.config['UPLOAD_FOLDER'] + file_name,
+            #                                                     hdfs_path_to_folder + '/' + file_name))
+            target_path = hdfs_path_to_folder + '/' + "roc_curve.png"
+            source_path = "roc_curve.png"
+            hdfs_manager.synchronize_file(hdfs_path=target_path, local_path=source_path)
+            _classifier_instance.validate_model(validate_method='precision')
+            _classifier_instance.validate_model(validate_method='recall')
+            _predict_result = {
+                "accuracy": _classifier_instance.validate_model(validate_method='accuracy'),
+                "auc": _classifier_instance.validate_model(validate_method='auc'),
+                "precision": _classifier_instance.validate_model(validate_method='precision'),
+                "recall": _classifier_instance.validate_model(validate_method='recall'),
+                "roc": "roc_curve.png"
+            }
+            return json.dumps(_predict_result)
 
 
-@app.route('/experiment', methods=['GET', 'POST'])
-def experiment():
+@app.route('/generator', methods=['GET', 'POST'])
+def generator():
+    import data_generator
     global _classifier_instance, _hdfs_config
     # receive start_date and end_date
     start_date = request.form.get("start_date")
     end_date = request.form.get("end_date")
     count = request.form.get("count")
     frequency = request.form.get("frequency")
-    try:
-        count = int(count)
-    except ValueError:
-        return "The count of records should be integer type. Cannot cast string into int."
-    try:
-        frequency = float(frequency)
-    except ValueError:
-        return "The frequency of input should be numerical type. Cannot cast string into numerical."
-
-    import data_generator
-    _fake_data_set = data_generator.generate_transaction_data(start_date=start_date, end_date=end_date)
-    hdfs_path = _hdfs_config["hdfs_base"] + _hdfs_config["hdfs_root"] + _hdfs_config[
-        "hdfs_folder_name"] + "fake_data_set.csv"
-    hdfs_manager.create_file(hdfs_path, data_set=_fake_data_set.to_csv())
-
-    import fraud_detector, kafka_manager, stress_test_producer
-    _kafka_consumer_result = kafka_manager.get_kafka_consumer(topic="detect_result")
-    fraud_detector.detect()
-    stress_test_producer.stress_test_kafka_producer(start_date=start_date, end_date=end_date, frequency=frequency)
+    profile = request.form.get("profile")
+    profile_base_path = "/home/hduser/fraudiscern/source/utils/data_generator_module/profiles/"
+    profile_path = profile_base_path + profile
+    output_file = profile.split('.')
+    output_file = output_file[0]
+    output_file = output_file + '.csv'
+    output_base_path = "/home/hduser/fraudiscern/source/utils/data_generator_module/data/"
+    output_path = output_base_path + output_file
+    data_generator.generate_transaction_data(start_date=start_date, end_date=end_date, profile_path=profile_path,
+                                             file_path=output_path)
 
 
 swagger = Swagger(app)

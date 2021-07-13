@@ -8,9 +8,11 @@
 @version: 1.1
 """
 
+import matplotlib.pyplot as plt
 from pyspark.ml.classification import RandomForestClassifier
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator, BinaryClassificationEvaluator
 
+from curve_metrics import CurveMetrics
 # from source.interface import model_interface
 from source.interface.model_interface import model_interface
 from source.utils import hdfs_manager
@@ -97,6 +99,20 @@ class RandomForestClassifierModel(model_interface):
             #     'rawPrediction').setLabelCol("label")
             # auc = evaluator.evaluate(_predict_result)
             print("auc is {}".format(auc))
+
+            # Returns as a list (false positive rate, true positive rate)
+            _predictions = _predict_result.select('label', 'probability').rdd.map(
+                lambda row: (float(row['probability'][1]), float(row['label'])))
+            points = CurveMetrics(_predictions).get_curve('roc')
+
+            plt.figure()
+            x_val = [x[0] for x in points]
+            y_val = [x[1] for x in points]
+            plt.title("ROC")
+            plt.xlabel("FP")
+            plt.ylabel("TP")
+            plt.plot(x_val, y_val)
+            plt.savefig("roc_curve.png")
             _valid_result = auc
         if method == 'precision':
             precision = MulticlassClassificationEvaluator(labelCol='label',
