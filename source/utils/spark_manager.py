@@ -48,6 +48,7 @@ def _crate_spark_session():
         .builder \
         .config(conf=_conf) \
         .getOrCreate()
+    _spark_session.sparkContext.setLogLevel("ERROR")
     return _spark_session
 
 

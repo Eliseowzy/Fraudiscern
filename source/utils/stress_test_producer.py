@@ -6,12 +6,15 @@
 # Version: v1
 """
 
+import getpass
+import os
 import time
 
 import kafka_manager
+import time_stamp
 from data_generator import generate_transaction_data
 
-import time_stamp
+
 def stress_test_kafka_producer(start_date="1-1-2012", end_date="7-31-2012", frequency=0.1):
     """Send transaction data to kafka cluster as a producer client
 
@@ -30,6 +33,12 @@ def stress_test_kafka_producer(start_date="1-1-2012", end_date="7-31-2012", freq
 
 
 def main():
+    def get_system_username():
+        user_name = getpass.getuser()
+        return str(user_name)
+
+    output = "Transaction generator on {} has been started!".format(get_system_username())
+    os.system('echo -e "\033[31m\033[1m{}\033[0m"'.format(output))
     stress_test_kafka_producer()
 
 
