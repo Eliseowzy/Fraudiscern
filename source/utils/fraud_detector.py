@@ -9,15 +9,14 @@
 """
 
 import json
-import time
 
-import dateutil.parser
 from pyspark.sql.functions import col
 from pyspark.sql.types import DoubleType
 
 import kafka_manager
 import model_persistence
 import spark_manager
+import time_stamp
 from source.classifier import classifier
 
 _spark_session = spark_manager.get_spark_session()
@@ -50,26 +49,16 @@ def _detect_one(model, record):
     # print(detect_result)
     detect_result = detect_result.toPandas().to_json()
 
-    # detect_result = detect_result.to_json()
     detect_result = json.loads(detect_result)
     detect_label = detect_result["prediction"]
     label = int(detect_label["0"])
-    # print(label)
+
     result["prediction"] = label
     # add detect timestamp
-    ct = time.time()
-    local_time = time.localtime(ct)
-    data_head = time.strftime("%Y-%m-%d %H:%M:%S", local_time)
-    data_secs = (ct - int(ct)) * 1000
-    time_stamp = "%s.%03d" % (data_head, data_secs)
-    result["detect_time"] = time_stamp
+    result["detect_time"] = time_stamp.get_timestamp()
     result = json.dumps(result)
-    print(result)
+
     return result
-    # except TypeError:
-    #     pass
-    # record_tmp.show()
-    # print(record_tmp.columns)
 
 
 # model_path="hdfs://10.244.35.208:9000/models/RandomForestModel/rf_1"
@@ -87,17 +76,25 @@ def detect(model_path="hdfs://10.244.35.208:9000/models/RandomForestModel/rf_2")
         message_content = json.loads(message_content)
         # print("Received message is: {}".format(message_content))
         if message_content:
+            receive_time = time_stamp.get_timestamp()
             # print("message content: {}".format(message_content))
             message_topic = message.topic
             detect_result = _detect_one(model, message_content)
             detect_result = json.loads(detect_result)
 
             send_time = message_content["send_time"]
-            time_end = dateutil.parser.parse(detect_result["detect_time"])
-            time_start = dateutil.parser.parse(send_time)
-            gap = (time_end - time_start).total_seconds()
+            detect_time = detect_result["detect_time"]
+
+            # get gaps
+            gap_send_detect = time_stamp.get_timestamp_gap(start_time=send_time, end_time=detect_time)
+            gap_send_receive = time_stamp.get_timestamp_gap(start_time=send_time, end_time=receive_time)
+            gap_receive_detect = time_stamp.get_timestamp_gap(start_time=receive_time, end_time=detect_time)
+            # set data
             detect_result["send_time"] = send_time
-            detect_result["gap_send_detect"] = gap
+            detect_result["receive_time"] = receive_time
+            detect_result["gap_send_detect"] = gap_send_detect
+            detect_result["gap_send_receive"] = gap_send_receive
+            detect_result["gap_receive_detect"] = gap_receive_detect
 
             # send detect result to kafka
             detect_result = json.dumps(detect_result)
