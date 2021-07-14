@@ -12,7 +12,6 @@ from time import sleep
 
 import pandas
 import pyspark.sql
-from flasgger import Swagger
 from flask import Flask, jsonify
 from werkzeug.utils import secure_filename
 
@@ -327,42 +326,52 @@ def generator():
         # 多次刷新如何处理？
         fraud_detector.detect()
         stress_test_producer.stress_test_kafka_producer(start_date=start_date, end_date=end_date, frequency=frequency)
-        # 轮播模块
-        import json
-        import kafka_manager
-        _kafka_consumer_result = kafka_manager.get_kafka_consumer(topic="detect_result")
-        _kafka_consumer_message = kafka_manager.get_kafka_consumer()
-        _buffer_window = []
+    return str("ok")
 
-        _record_count = 0
-        _fraud_count = 0
-        _normal_count = 0
-        detect_result = {"record_count": None,
-                         "fraud_count": None,
-                         "normal_count": None,
-                         "current_message": None,
-                         "prediction": None}
-        for message in _kafka_consumer_result:
-            result = json.loads(message.value.decode())
-            result.replace("\'", "\"")
-            # print(type(result))
-            # print(result)
-            result = json.loads(result)
-            if result:
-                _record_count += 1
-                label = result["prediction"]
-                if label:
-                    _fraud_count += 1
-                else:
-                    _normal_count += 1
-                detect_result["record_count"] = _record_count
-                detect_result["fraud_count"] = _fraud_count
-                detect_result["normal_count"] = _normal_count
-                detect_result["current_message"] = result
-                detect_result["prediction"] = label
-            print(detect_result)
-        return
 
+import kafka_manager
+
+_kafka_consumer_result = kafka_manager.get_kafka_consumer(topic="detect_result")
+_kafka_consumer_message = kafka_manager.get_kafka_consumer()
+
+
+# 先调用generator
+# 再调用refresh
+@app.route('/refresh', methods=['GET', 'POST'])
+def refresh():
+    # 轮播模块
+    import json
+    _buffer_window = []
+
+    _record_count = 0
+    _fraud_count = 0
+    _normal_count = 0
+    detect_result = {"record_count": None,
+                     "fraud_count": None,
+                     "normal_count": None,
+                     "messages": None,
+                     "prediction": None}
+    for message in _kafka_consumer_result:
+        result = json.loads(message.value.decode())
+        result.replace("\'", "\"")
+        # print(type(result))
+        # print(result)
+        result = json.loads(result)
+        if result:
+            _record_count += 1
+            label = result["prediction"]
+            if label:
+                _fraud_count += 1
+            else:
+                _normal_count += 1
+            _buffer_window.append(result["current_message"])
+
+            detect_result["record_count"] = _record_count
+            detect_result["fraud_count"] = _fraud_count
+            detect_result["normal_count"] = _normal_count
+            detect_result["messages"] = _buffer_window
+            detect_result["prediction"] = label
+            return detect_result
     # profile = request.form.get("profile")
     # profile_base_path = "/home/hduser/fraudiscern/source/utils/data_generator_module/profiles/"
     # profile_path = profile_base_path + profile
@@ -373,50 +382,6 @@ def generator():
     # output_path = output_base_path + output_file
     # data_generator.generate_transaction_data(start_date=start_date, end_date=end_date, profile_path=profile_path,
     #                                          file_path=output_path)
-
-
-swagger = Swagger(app)
-
-
-@app.route('/colors/<palette>/')
-def colors(palette):
-    """Example endpoint returning a list of colors by palette
-    This is using docstrings for specifications.
-    ---
-    parameters:
-      - name: palette
-        in: path
-        type: string
-        enum: ['all', 'rgb', 'cmyk']
-        required: true
-        default: all
-    definitions:
-      Palette:
-        type: object
-        properties:
-          palette_name:
-            type: array
-            items:
-              $ref: '#/definitions/Color'
-      Color:
-        type: string
-    responses:
-      200:
-        description: A list of colors (may be filtered by palette)
-        schema:
-          $ref: '#/definitions/Palette'
-        examples:
-          rgb: ['red', 'green', 'blue']
-    """
-    all_colors = {
-        'cmyk': ['cian', 'magenta', 'yellow', 'black'],
-        'rgb': ['red', 'green', 'blue']
-    }
-    if palette == 'all':
-        result = all_colors
-    else:
-        result = {palette: all_colors.get(palette)}
-    return jsonify(result)
 
 
 if __name__ == '__main__':
