@@ -372,16 +372,6 @@ def refresh():
             detect_result["messages"] = _buffer_window
             detect_result["prediction"] = label
             return detect_result
-    # profile = request.form.get("profile")
-    # profile_base_path = "/home/hduser/fraudiscern/source/utils/data_generator_module/profiles/"
-    # profile_path = profile_base_path + profile
-    # output_file = profile.split('.')
-    # output_file = output_file[0]
-    # output_file = output_file + '.csv'
-    # output_base_path = "/home/hduser/fraudiscern/source/utils/data_generator_module/data/"
-    # output_path = output_base_path + output_file
-    # data_generator.generate_transaction_data(start_date=start_date, end_date=end_date, profile_path=profile_path,
-    #                                          file_path=output_path)
 
 
 if __name__ == '__main__':
