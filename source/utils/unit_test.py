@@ -126,7 +126,6 @@ def classifier_test():
 
     classifier_instance = classifier()
     classifier_instance.set_data_set("hdfs://10.244.35.208:9000/dataset/dataset_1/fraudTest.csv")
-
     classifier_instance.train_model()
     classifier_instance.save_model()
     classifier_instance.predict()
@@ -187,13 +186,13 @@ def kafka_test():
 def main_test():
     """Entry to Unit test
     """
-    spark_manager_test()
-    generator_test("gen_transaction")
+    # spark_manager_test()
+    # generator_test("gen_transaction")
     classifier_test()
-    model_persistence_test()
-    data_sampler_test()
-    data_loader_test(function='load_data_to_csv')
-    data_loader_test(function='load_data_from_hdfs')
+    # model_persistence_test()
+    # data_sampler_test()
+    # data_loader_test(function='load_data_to_csv')
+    # data_loader_test(function='load_data_from_hdfs')
 
     hdfs_manager_test()
     exit(0)

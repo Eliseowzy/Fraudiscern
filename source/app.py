@@ -8,13 +8,12 @@
 @version:
 """
 import json
-import os
 from time import sleep
 
 import pandas
 import pyspark.sql
 from flasgger import Swagger
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 from werkzeug.utils import secure_filename
 
 import data_loader
@@ -112,6 +111,69 @@ html = '''
          <input type=submit value=Upload>
     </form>
     '''
+
+from flask import request
+from flask_mail import Mail, Message
+import os
+from threading import Thread
+from utils import user_register
+
+app.config['MAIL_SERVER'] = 'smtp.qq.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = '863840917@qq.com'
+app.config['MAIL_PASSWORD'] = 'uxjvbcwftyambdai'
+
+mail = Mail(app)
+
+
+def send_async_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
+
+
+_auth_code = None
+
+
+@app.route('/send_auth_code', methods=["GET", "POST"])
+def send_auth_code():
+    global _auth_code
+    mail_address = request.form.get("mail")
+    msg = Message('Welcome {} to fraudiscern!'.format(mail_address), sender='863840917@qq.com',
+                  recipients=[mail_address])
+    _auth_code = user_register.get_authentication_code(6)
+    msg.body = _auth_code
+    thread = Thread(target=send_async_email, args=[app, msg])
+    thread.start()
+    return str("{status: 'ok'}")
+
+
+@app.route('/register', methods=["GET", "POST"])
+def register():
+    from utils import user_register
+    global _auth_code
+
+    user_dct = {
+        "user_name": request.form.get("user_name"),
+        "mail_address": request.form.get("mail"),
+        "auth_code": request.form.get("captcha"),
+        "password1": request.form.get("password1"),
+        "password2": request.form.get("password2")
+    }
+    if user_dct["auth_code"] == _auth_code:
+        if user_dct["password1"] == user_dct["password2"]:
+            result = user_register.add_user(user_dct)
+            if result:
+                return str("{status: 'ok'}")
+            else:
+                return str("{status: 'user already exists'}")
+    else:
+        return str("{status: 'auth code does not match'}")
+
+
+@app.route('/login', methods=["GET", "POST"])
+def login():
+    return "Login"
 
 
 @app.route('/upload', methods=["GET", "POST"])
@@ -253,23 +315,64 @@ def train_model():
 
 @app.route('/generator', methods=['GET', 'POST'])
 def generator():
-    import data_generator
     global _classifier_instance, _hdfs_config
     # receive start_date and end_date
     start_date = request.form.get("start_date")
     end_date = request.form.get("end_date")
-    count = request.form.get("count")
+    # count = request.form.get("count")
     frequency = request.form.get("frequency")
-    profile = request.form.get("profile")
-    profile_base_path = "/home/hduser/fraudiscern/source/utils/data_generator_module/profiles/"
-    profile_path = profile_base_path + profile
-    output_file = profile.split('.')
-    output_file = output_file[0]
-    output_file = output_file + '.csv'
-    output_base_path = "/home/hduser/fraudiscern/source/utils/data_generator_module/data/"
-    output_path = output_base_path + output_file
-    data_generator.generate_transaction_data(start_date=start_date, end_date=end_date, profile_path=profile_path,
-                                             file_path=output_path)
+    if start_date and end_date and frequency:
+        import stress_test_producer, fraud_detector
+        # 是不是并行的？
+        # 多次刷新如何处理？
+        fraud_detector.detect()
+        stress_test_producer.stress_test_kafka_producer(start_date=start_date, end_date=end_date, frequency=frequency)
+        # 轮播模块
+        import json
+        import kafka_manager
+        _kafka_consumer_result = kafka_manager.get_kafka_consumer(topic="detect_result")
+        _kafka_consumer_message = kafka_manager.get_kafka_consumer()
+        _buffer_window = []
+
+        _record_count = 0
+        _fraud_count = 0
+        _normal_count = 0
+        detect_result = {"record_count": None,
+                         "fraud_count": None,
+                         "normal_count": None,
+                         "current_message": None,
+                         "prediction": None}
+        for message in _kafka_consumer_result:
+            result = json.loads(message.value.decode())
+            result.replace("\'", "\"")
+            # print(type(result))
+            # print(result)
+            result = json.loads(result)
+            if result:
+                _record_count += 1
+                label = result["prediction"]
+                if label:
+                    _fraud_count += 1
+                else:
+                    _normal_count += 1
+                detect_result["record_count"] = _record_count
+                detect_result["fraud_count"] = _fraud_count
+                detect_result["normal_count"] = _normal_count
+                detect_result["current_message"] = result
+                detect_result["prediction"] = label
+            print(detect_result)
+        return
+
+    # profile = request.form.get("profile")
+    # profile_base_path = "/home/hduser/fraudiscern/source/utils/data_generator_module/profiles/"
+    # profile_path = profile_base_path + profile
+    # output_file = profile.split('.')
+    # output_file = output_file[0]
+    # output_file = output_file + '.csv'
+    # output_base_path = "/home/hduser/fraudiscern/source/utils/data_generator_module/data/"
+    # output_path = output_base_path + output_file
+    # data_generator.generate_transaction_data(start_date=start_date, end_date=end_date, profile_path=profile_path,
+    #                                          file_path=output_path)
 
 
 swagger = Swagger(app)

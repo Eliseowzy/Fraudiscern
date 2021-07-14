@@ -67,7 +67,7 @@ class classifier:
         return self._train_set, self._test_set
 
     def _set_train_test_set(self, test_proportion=0.05):
-        """Split the train set and test set. The ratio is 0.95~0.05 by defult.
+        """Split the train set and test set. The ratio is 0.95~0.05 by default.
 
         Args:
             test_proportion (float, optional): The ratio fo test set. Defaults to 0.05.
