@@ -8,6 +8,8 @@
 @version:
 """
 
+import paramiko
+import os
 _servers = ['spark-797d5ccdb-2jmdw', 'spark-797d5ccdb-4sq79', 'spark-797d5ccdb-6hsdc', 'spark-797d5ccdb-72z2j',
             'spark-797d5ccdb-9qz5w', 'spark-797d5ccdb-c56g9', 'spark-797d5ccdb-csq2m', 'spark-797d5ccdb-fjmbr',
             'spark-797d5ccdb-h2hcq', 'spark-797d5ccdb-ht7vz', 'spark-797d5ccdb-kvsrm', 'spark-797d5ccdb-l7txm',
@@ -17,9 +19,6 @@ _servers = ['spark-797d5ccdb-2jmdw', 'spark-797d5ccdb-4sq79', 'spark-797d5ccdb-6
             'spark-797d5ccdb-vp48k', 'spark-797d5ccdb-vt9c7', 'spark-797d5ccdb-x84dm', 'spark-797d5ccdb-xbwtr',
             'spark-797d5ccdb-xwtgf', 'spark-797d5ccdb-zgsg4', 'spark-797d5ccdb-zsk59']
 
-import os
-
-import paramiko
 
 _ssh_client = paramiko.SSHClient()
 _key = paramiko.AutoAddPolicy()
@@ -47,12 +46,25 @@ def _open_sftp(server):
 
 
 def execute_remote_cmd(server, cmd):
+    """Execute a command on a remote server.
+
+    Args:
+        server (str): The identifier of the server.
+        cmd (str): The command line.
+    """
     _get_connect(str(server))
     _execute_cmd(cmd)
     _close_connect()
 
 
 def synchronize_file(local, remote, syn_type="folder"):
+    """Synchronize the appointed file on the containers
+
+    Args:
+        local (str): Local file path.
+        remote (str): Remote file path.
+        syn_type (str, optional): The type of the file: (fil). Defaults to "folder".
+    """
     for server in _servers:
         if syn_type == "folder":
             try:
@@ -64,12 +76,11 @@ def synchronize_file(local, remote, syn_type="folder"):
 
 
 def help_start_producer(container_count=3):
-    # for server in _servers[:5]:
-    #     cmd = 'rm -rf /home/hduser/fraudiscern'
-    #     execute_remote_cmd(str(server), cmd)
-    # synchronize_file("/home/hduser/fraudiscern", "/home/hduser/fraudiscern")
-    # cmd = "ls"
-    # _execute_cmd(cmd)
+    """Help user start the containers on the cluster simultaneously.
+
+    Args:
+        container_count (int, optional): The count of containers. Defaults to 3.
+    """
     for server in _servers[:container_count]:
         print("start server {}".format(str(server)))
         # cmd_install_python_packages = "pip install -r packages.txt"

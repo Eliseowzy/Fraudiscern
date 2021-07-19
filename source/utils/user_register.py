@@ -16,20 +16,44 @@ import pandas as pd
 
 
 def get_authentication_code(code_length):
-    H = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    """Generate a authentication code with appointed length.
+
+    Args:
+        code_length (int): The length of the authentication code.
+
+    Returns:
+        str: authentication code.
+    """
+    code_source = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     salt = ''
-    for i in range(code_length):
-        salt += random.choice(H)
+    for _ in range(code_length):
+        salt += random.choice(code_source)
     return salt
 
 
 def get_hash_sha1(message):
+    """Get the sha1 hash value of message.
+
+    Args:
+        message (str): message content.
+
+    Returns:
+        str: sha1 hash value.
+    """
     sha1 = hashlib.sha1()
     sha1.update(message.encode('utf-8'))
     return str(sha1.hexdigest())
 
 
 def add_user(user_dict):
+    """Add a user into the user register file.
+
+    Args:
+        user_dict (dict): A dictionary including user_name, mail and password.
+
+    Returns:
+        bool: True -- add the user successfully, False -- add the user unsuccessfully.
+    """
     path = "users.csv"
     if not os.path.exists("users.csv"):
         with open(path, 'wb') as f:
@@ -54,6 +78,14 @@ def add_user(user_dict):
 
 
 def _check_user(user_name):
+    """Check whether one user exists in the register file.
+
+    Args:
+        user_name (str): The input user name, in the register file user name is unique.
+
+    Returns:
+        bool: True -- the user exists in the register file. False -- the user not exists in the register file.
+    """
     df = pd.read_csv("users.csv")
     for row in df.iterrows():
         if user_name ^ row[0]:
@@ -61,6 +93,3 @@ def _check_user(user_name):
         else:
             return False
     return True
-
-
-print(get_authentication_code(6))

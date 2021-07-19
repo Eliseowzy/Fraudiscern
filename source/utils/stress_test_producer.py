@@ -1,9 +1,11 @@
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 """
-# Name: stress_test_producer.py
-# Developer: Zhang Siyu
-# Data: 23.06.2021
-# Version: v1
+@author: Zhang Siyu
+@file: stress_test_producer.py
+@time: 6/21/2021
+@version: 1.0
 """
 
 import getpass
@@ -16,8 +18,15 @@ from data_generator import generate_transaction_data
 
 
 def stress_test_kafka_producer(start_date="1-1-2012", end_date="7-31-2012", frequency=0.1):
-    """Send transaction data to kafka cluster as a producer client
+    """Send simulated transaction data between start_date and end_date to kafka cluster as a producer client.
 
+    Args:
+        start_date (str, optional): The start date of the generator. Defaults to "1-1-2012".
+        end_date (str, optional): The end date of the generator. Defaults to "7-31-2012".
+        frequency (float, optional): The time slot of each message send to kafka. Defaults to 0.1(s).
+
+    Returns:
+        [type]: [description]
     """
     producer = kafka_manager.get_kafka_producer()
     transaction_data_set = generate_transaction_data(start_date=start_date, end_date=end_date)

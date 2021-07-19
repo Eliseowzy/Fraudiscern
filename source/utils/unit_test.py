@@ -123,12 +123,15 @@ def classifier_test():
     """[summary]
     """
     from source.classifier import classifier
+    import spark_manager
+    spark_session = spark_manager.get_spark_session()
 
     classifier_instance = classifier()
     classifier_instance.set_data_set("hdfs://10.244.35.208:9000/dataset/dataset_1/fraudTest.csv")
     classifier_instance.train_model()
     classifier_instance.save_model()
     classifier_instance.predict()
+    spark_session.stop()
     # validation module test
     classifier_instance.validate_model(validate_method='accuracy')
     classifier_instance.validate_model(validate_method='auc')
