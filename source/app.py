@@ -22,6 +22,7 @@ from classifier import classifier
 
 app = Flask(__name__)
 
+# 上传文件夹设定
 app.config['UPLOAD_FOLDER'] = "/home/hduser/fraudiscern/upload_buffer/"
 _data_set: pyspark.sql.DataFrame = None
 _data_set_description: pandas.DataFrame = pandas.DataFrame()
@@ -80,27 +81,27 @@ def _init_preprocess():
         return
 
 
-@app.route('/', methods=["GET", "POST"])
-def welcome():
-    global _hdfs_config
-    user_name = request.form.get("user_name")
-    user_id = request.form.get("user_id")
-    if user_name and user_id:
-        _hdfs_config["hdfs_folder_name"] = "user_{}".format(str(user_id))
-        res = hdfs_manager.create_dir(hdfs_root=_hdfs_config["hdfs_root"], folder_name=_hdfs_config["hdfs_folder_name"])
-        return '''
-        <!DOCTYPE html>
-        <h1>Welcome to fraudiscern! Your user name is {}, your user_id is {}, you have created an hdfs folder: {}</h1>
-        <h2>Congratulations, {}</h2>
-        '''.format(user_name, user_id, _hdfs_config["hdfs_folder_name"], res)
-    else:
-        return '''
-        <!DOCTYPE html>
-        <h1>Welcome to fraudiscern!</h1>
-        <h2>Enjoy it~</h2>
-        '''
+# @app.route('/', methods=["GET", "POST"])
+# def welcome():
+#     global _hdfs_config
+#     user_name = request.form.get("user_name")
+#     user_id = request.form.get("user_id")
+#     if user_name and user_id:
+#         _hdfs_config["hdfs_folder_name"] = "user_{}".format(str(user_id))
+#         res = hdfs_manager.create_dir(hdfs_root=_hdfs_config["hdfs_root"], folder_name=_hdfs_config["hdfs_folder_name"])
+#         return '''
+#         <!DOCTYPE html>
+#         <h1>Welcome to fraudiscern! Your user name is {}, your user_id is {}, you have created an hdfs folder: {}</h1>
+#         <h2>Congratulations, {}</h2>
+#         '''.format(user_name, user_id, _hdfs_config["hdfs_folder_name"], res)
+#     else:
+#         return '''
+#         <!DOCTYPE html>
+#         <h1>Welcome to fraudiscern!</h1>
+#         <h2>Enjoy it~</h2>
+#         '''
 
-
+# @app.route('/')
 html = '''
     <!DOCTYPE html>
     <title>Upload File</title>
@@ -172,6 +173,9 @@ def register():
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
+    user_name = request.form.get("user_name")
+    password = request.form.get("password")
+
     return "Login"
 
 

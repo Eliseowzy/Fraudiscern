@@ -88,7 +88,7 @@ def _check_user(user_name):
     """
     df = pd.read_csv("users.csv")
     for row in df.iterrows():
-        if user_name ^ row[0]:
+        if int(bin(user_name)) ^ int(bin(row[0])):
             continue
         else:
             return False
