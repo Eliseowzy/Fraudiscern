@@ -55,8 +55,9 @@ def add_user(user_dict):
         bool: True -- add the user successfully, False -- add the user unsuccessfully.
     """
     path = "users.csv"
+    print(os.path)
     if not os.path.exists("users.csv"):
-        with open(path, 'wb') as f:
+        with open(path, 'w') as f:
             csv_write = csv.writer(f)
             csv_head = ["username", "mail", "password"]
             csv_write.writerow(csv_head)
@@ -64,6 +65,7 @@ def add_user(user_dict):
             csv_write = csv.writer(f)
             data_row = [get_hash_sha1(str(user_dict["user_name"])), get_hash_sha1(str(user_dict["mail"])),
                         get_hash_sha1(str(user_dict["password2"]))]
+            print("aaaaaaaaaaaaaa{}".format(data_row))
             csv_write.writerow(data_row)
     else:
         if _check_user(str(user_dict["user_name"])):
@@ -86,6 +88,7 @@ def _check_user(user_name):
     Returns:
         bool: True -- the user exists in the register file. False -- the user not exists in the register file.
     """
+
     df = pd.read_csv("users.csv")
     for row in df.iterrows():
         if int(bin(user_name)) ^ int(bin(row[0])):
@@ -93,3 +96,4 @@ def _check_user(user_name):
         else:
             return False
     return True
+

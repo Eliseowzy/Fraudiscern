@@ -13,6 +13,7 @@ from time import sleep
 import pandas
 import pyspark.sql
 from flask import Flask, jsonify
+from flask_cors import *
 from werkzeug.utils import secure_filename
 
 import data_loader
@@ -21,7 +22,7 @@ import hdfs_manager
 from classifier import classifier
 
 app = Flask(__name__)
-
+CORS(app, supports_credentials=True)
 # 上传文件夹设定
 app.config['UPLOAD_FOLDER'] = "/home/hduser/fraudiscern/upload_buffer/"
 _data_set: pyspark.sql.DataFrame = None
@@ -84,8 +85,8 @@ def _init_preprocess():
 # @app.route('/', methods=["GET", "POST"])
 # def welcome():
 #     global _hdfs_config
-#     user_name = request.form.get("user_name")
-#     user_id = request.form.get("user_id")
+#     user_name = request.json["user_name")
+#     user_id = request.json["user_id")
 #     if user_name and user_id:
 #         _hdfs_config["hdfs_folder_name"] = "user_{}".format(str(user_id))
 #         res = hdfs_manager.create_dir(hdfs_root=_hdfs_config["hdfs_root"], folder_name=_hdfs_config["hdfs_folder_name"])
@@ -101,7 +102,28 @@ def _init_preprocess():
 #         <h2>Enjoy it~</h2>
 #         '''
 
-# @app.route('/')
+
+# @app.route('/test', methods=["GET", "POST"])
+# def index():
+# print(len(request.data))
+
+# print(type(request.data))
+# print(type(request.json))
+# print(request.data)
+# print(request)
+# print()
+# request_json = str(request.json, encoding="utf-8")
+# request_json = request.json
+# user_name = request_json["user_name"]
+# password = request_json["password"]
+# print(request_json)
+# print(type(request_json))
+# res = "user_name: {}, password: {}".format(user_name, password)
+# print(res)
+# return res
+# return render_template('index.html')
+
+
 html = '''
     <!DOCTYPE html>
     <title>Upload File</title>
@@ -138,7 +160,8 @@ _auth_code = None
 @app.route('/send_auth_code', methods=["GET", "POST"])
 def send_auth_code():
     global _auth_code
-    mail_address = request.form.get("mail")
+    print(request.json)
+    mail_address = request.json["mail"]
     msg = Message('Welcome {} to fraudiscern!'.format(mail_address), sender='863840917@qq.com',
                   recipients=[mail_address])
     _auth_code = user_register.get_authentication_code(6)
@@ -154,16 +177,24 @@ def register():
     global _auth_code
 
     user_dct = {
-        "user_name": request.form.get("user_name"),
-        "mail_address": request.form.get("mail"),
-        "auth_code": request.form.get("captcha"),
-        "password1": request.form.get("password1"),
-        "password2": request.form.get("password2")
+        "user_name": request.json["user_name"],
+        "mail_address": request.json["mail"],
+        "auth_code": request.json["captcha"],
+        "password1": request.json["password1"],
+        "password2": request.json["password2"]
     }
-    if user_dct["auth_code"] == _auth_code:
+    # if user_dct["auth_code"] == _auth_code:
+    if True:
         if user_dct["password1"] == user_dct["password2"]:
             result = user_register.add_user(user_dct)
             if result:
+                #     global _hdfs_config
+                #     user_name = request.json["user_name"]
+                #     user_id = request.json["user_id"]
+                #     if user_name and user_id:
+                #         _hdfs_config["hdfs_folder_name"] = "user_{}".format(str(user_id))
+                #         res = hdfs_manager.create_dir(hdfs_root=_hdfs_config["hdfs_root"],
+                #                                       folder_name=_hdfs_config["hdfs_folder_name"])
                 return str("{status: 'ok'}")
             else:
                 return str("{status: 'user already exists'}")
@@ -173,8 +204,8 @@ def register():
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
-    user_name = request.form.get("user_name")
-    password = request.form.get("password")
+    user_name = request.json["user_name"]
+    password = request.json["password"]
 
     return "Login"
 
@@ -231,14 +262,14 @@ def upload():
 @app.route('/visualization', methods=["GET", "POST"])
 def visualization():
     global _data_set
-    if not request.form.get("select_file"):
+    if not request.json["select_file"]:
         # 获取hdfs文件下的所有文件名
         hdfs_path = _hdfs_config["hdfs_base"] + _hdfs_config["hdfs_folder_name"]
         file_names = hdfs_manager.get_file_names(hdfs_path)
         return file_names
-    if request.form.get("select_file"):
+    if request.json["select_file"]:
         # 返回前几行
-        file_name = request.form.get("select_file")
+        file_name = request.json["select_file"]
         _hdfs_config["hdfs_data_set_name"] = file_name
         hdfs_path = _hdfs_config["hdfs_root"] + _hdfs_config["hdfs_folder_name"] + _hdfs_config["hdfs_data_set_name"]
         _data_set = data_loader.load_data_from_hdfs(path=hdfs_path)
@@ -283,10 +314,10 @@ def preprocess():
 @app.route('/train_model', methods=['GET', 'POST'])
 def train_model():
     global _classifier_instance, _hdfs_config
-    if request.form.get("model_name"):
-        model_name = request.form.get("model_name")
-        target = request.form.get("target")
-        test_ratio = float(request.form.get("test_ratio"))
+    if request.json["model_name"]:
+        model_name = request.json["model_name"]
+        target = request.json["target"]
+        test_ratio = float(request.json["test_ratio"])
         if model_name == "random_forest" and target and test_ratio:
             _classifier_instance = classifier(model_name=model_name, target=target)
             data_set_path = _hdfs_config["hdfs_base"] + _hdfs_config["hdfs_root"] + _hdfs_config["hdfs_folder_name"] + \
@@ -320,10 +351,10 @@ def train_model():
 def generator():
     global _classifier_instance, _hdfs_config
     # receive start_date and end_date
-    start_date = request.form.get("start_date")
-    end_date = request.form.get("end_date")
-    # count = request.form.get("count")
-    frequency = request.form.get("frequency")
+    start_date = request.json["start_date"]
+    end_date = request.json["end_date"]
+    # count = request.json["count")
+    frequency = request.json["frequency"]
     if start_date and end_date and frequency:
         import stress_test_producer, fraud_detector
         # 是不是并行的？
