@@ -11,6 +11,7 @@ import json
 from time import sleep
 
 import pandas
+import pandas as pd
 import pyspark.sql
 from flask import Flask, jsonify
 from flask_cors import *
@@ -22,6 +23,7 @@ import hdfs_manager
 from classifier import classifier
 
 app = Flask(__name__)
+
 CORS(app, supports_credentials=True)
 # 上传文件夹设定
 app.config['UPLOAD_FOLDER'] = "/home/hduser/fraudiscern/upload_buffer/"
@@ -58,10 +60,16 @@ def _init_load_data():
                       _hdfs_config[
                           "hdfs_data_set_name"]
         _data_set = data_loader.load_data_from_hdfs(path=source_path)
-        _data_set = _data_set.select(["amt", "lat", "long", "city_pop", "merch_lat", "merch_long",
-                                      "is_fraud"])
-        _data_set_description = _data_set.describe()
-        _data_set_description = _data_set_description.toPandas()
+        _data_set = _data_set.select('amt', 'lat', 'long', 'city_pop', 'merch_lat', 'merch_long', 'is_fraud')
+        _data_set_description = _data_set.describe().toPandas()
+        # _data_set_description_df = _data_set_description.toPandas()
+        # _data_set_description = _data_set_description.toPandas()
+        _data_set_description = pd.DataFrame(_data_set_description)
+        _data_set_description = _data_set_description.to_json()
+
+        # _data_set_description_df = pd.DataFrame(_data_set_description_df)
+        # _col = _data_set_description_df.columns
+        # print(_col)
         # data_set_description = data_set_description.to_html()
         # data_set_description = str(data_set_description)
         _is_finished["describe_data_set"] = True
@@ -103,36 +111,15 @@ def _init_preprocess():
 #         '''
 
 
-# @app.route('/test', methods=["GET", "POST"])
-# def index():
-# print(len(request.data))
-
-# print(type(request.data))
-# print(type(request.json))
-# print(request.data)
-# print(request)
-# print()
-# request_json = str(request.json, encoding="utf-8")
-# request_json = request.json
-# user_name = request_json["user_name"]
-# password = request_json["password"]
-# print(request_json)
-# print(type(request_json))
-# res = "user_name: {}, password: {}".format(user_name, password)
-# print(res)
-# return res
-# return render_template('index.html')
-
-
-html = '''
-    <!DOCTYPE html>
-    <title>Upload File</title>
-    <h1>Choose Your Dataset:</h1>
-    <form method=post enctype=multipart/form-data>
-         <input type=file name=file>
-         <input type=submit value=Upload>
-    </form>
-    '''
+# html = '''
+#     <!DOCTYPE html>
+#     <title>Upload File</title>
+#     <h1>Choose Your Dataset:</h1>
+#     <form method=post enctype=multipart/form-data>
+#          <input type=file name=file>
+#          <input type=submit value=Upload>
+#     </form>
+#     '''
 
 from flask import request
 from flask_mail import Mail, Message
@@ -175,6 +162,8 @@ def send_auth_code():
 def register():
     from utils import user_register
     global _auth_code
+    print(request.json)
+    print(request.json["user_name"])
 
     user_dct = {
         "user_name": request.json["user_name"],
@@ -183,31 +172,43 @@ def register():
         "password1": request.json["password1"],
         "password2": request.json["password2"]
     }
-    # if user_dct["auth_code"] == _auth_code:
-    if True:
+    if user_dct["auth_code"] == _auth_code:
+        # if True:
         if user_dct["password1"] == user_dct["password2"]:
             result = user_register.add_user(user_dct)
             if result:
-                #     global _hdfs_config
-                #     user_name = request.json["user_name"]
-                #     user_id = request.json["user_id"]
-                #     if user_name and user_id:
-                #         _hdfs_config["hdfs_folder_name"] = "user_{}".format(str(user_id))
-                #         res = hdfs_manager.create_dir(hdfs_root=_hdfs_config["hdfs_root"],
-                #                                       folder_name=_hdfs_config["hdfs_folder_name"])
-                return str("{status: 'ok'}")
+                global _hdfs_config
+                user_name = request.json["user_name"]
+                # user_id = request.json["user_id"]
+                if user_name and user_name:
+                    _hdfs_config["hdfs_folder_name"] = "user_{}".format(str(user_name))
+                    res = hdfs_manager.create_dir(hdfs_root=_hdfs_config["hdfs_root"],
+                                                  folder_name=_hdfs_config["hdfs_folder_name"])
+                return {'status': "ok"}
             else:
-                return str("{status: 'user already exists'}")
+                return {'status': "error"}
     else:
         return str("{status: 'auth code does not match'}")
 
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
+    print(request.json)
     user_name = request.json["user_name"]
     password = request.json["password"]
+    _hdfs_config["hdfs_folder_name"] = "user_{}".format(str(user_name))
+    if user_register.log_in(user_name=user_name, password=password):
+        return {'status': "ok"}
+    else:
+        return {'status': "error"}
 
-    return "Login"
+    # {'values': {'user_name': '12345', 'password': '12345', 'autoLogin': True}}
+
+
+@app.route('/logout', methods=["GET", "POST"])
+def logout():
+    _hdfs_config["hdfs_folder_name"] = None
+    return {'status': "ok"}
 
 
 @app.route('/upload', methods=["GET", "POST"])
@@ -247,7 +248,10 @@ def upload():
             # return html + "Upload finished!" + "hadoop fs -put {}  {}".format(app.config['UPLOAD_FOLDER'] + file_name,
             #                                                                   hdfs_path_to_folder + '/' + file_name)
             _init_load_data()
-            return _data_set_description
+            print(_data_set_description)
+            # return _data_set_description
+            return {'status': "OK",
+                    'description': "{}".format(_data_set_description)}
         else:
             return "Cannot upload empty file."
     # Make buffer dictionary.
@@ -256,7 +260,7 @@ def upload():
     # cmd_helper.cmd_helper("mkdir {}".format(app.config['UPLOAD_FOLDER']))
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.mkdir(app.config['UPLOAD_FOLDER'])
-    return html + "File will be uploaded to:" + app.config['UPLOAD_FOLDER']
+    # return html + "File will be uploaded to:" + app.config['UPLOAD_FOLDER']
 
 
 @app.route('/visualization', methods=["GET", "POST"])
@@ -320,54 +324,70 @@ def train_model():
         test_ratio = float(request.json["test_ratio"])
         if model_name == "random_forest" and target and test_ratio:
             _classifier_instance = classifier(model_name=model_name, target=target)
-            data_set_path = _hdfs_config["hdfs_base"] + _hdfs_config["hdfs_root"] + _hdfs_config["hdfs_folder_name"] + \
-                            _hdfs_config["hdfs_data_set_name"]
+            data_set_path = _hdfs_config["hdfs_base"] + _hdfs_config["hdfs_root"] + _hdfs_config[
+                "hdfs_folder_name"] + '/' + _hdfs_config["hdfs_data_set_name"]
             _classifier_instance.set_data_set(data_set_path=data_set_path, test_proportion=test_ratio)
             _classifier_instance.train_model()
 
-            hdfs_path_to_folder = _hdfs_config["hdfs_root"] + _hdfs_config[
-                "hdfs_folder_name"]
+            # hdfs_path_to_folder = _hdfs_config["hdfs_root"] + _hdfs_config["hdfs_folder_name"]
             # 从服务器缓冲区上传到hdfs, 子线程上传, 目前在flask中执行shell脚本的功能还无法较好的实现
             # Upload to hdfs
             # import cmd_helper
             # cmd_helper.cmd_helper("hadoop fs -put {} {}".format(app.config['UPLOAD_FOLDER'] + file_name,
             #                                                     hdfs_path_to_folder + '/' + file_name))
-            target_path = hdfs_path_to_folder + '/' + "roc_curve.png"
-            source_path = "roc_curve.png"
-            hdfs_manager.synchronize_file(hdfs_path=target_path, local_path=source_path)
+            # target_path = hdfs_path_to_folder + '/' + "roc_curve.png"
+            # source_path = "roc_curve.png"
+            # hdfs_manager.synchronize_file(hdfs_path=target_path, local_path=source_path)
             _classifier_instance.validate_model(validate_method='precision')
             _classifier_instance.validate_model(validate_method='recall')
             _predict_result = {
                 "accuracy": _classifier_instance.validate_model(validate_method='accuracy'),
                 "auc": _classifier_instance.validate_model(validate_method='auc'),
                 "precision": _classifier_instance.validate_model(validate_method='precision'),
-                "recall": _classifier_instance.validate_model(validate_method='recall'),
-                "roc": "roc_curve.png"
+                "recall": _classifier_instance.validate_model(validate_method='recall')
+                # "roc": "roc_curve.png"
             }
+            print(_predict_result)
             return json.dumps(_predict_result)
+
+
+import kafka_manager
+
+_kafka_consumer_message = kafka_manager.get_kafka_consumer()
+
+_detect_result = None
 
 
 @app.route('/generator', methods=['GET', 'POST'])
 def generator():
     global _classifier_instance, _hdfs_config
+
     # receive start_date and end_date
-    start_date = request.json["start_date"]
-    end_date = request.json["end_date"]
-    # count = request.json["count")
-    frequency = request.json["frequency"]
+    print(request.json)
+
+    start_date = "1-1-2012"
+    end_date = "7-31-2012"
+    frequency = 0.1
+
+    # start_date = request.json["start_date"]
+    # end_date = request.json["end_date"]
+    # # count = request.json["count")
+    # frequency = request.json["frequency"]
     if start_date and end_date and frequency:
         import stress_test_producer, fraud_detector
         # 是不是并行的？
         # 多次刷新如何处理？
-        fraud_detector.detect()
+
+        print("generator started")
         stress_test_producer.stress_test_kafka_producer(start_date=start_date, end_date=end_date, frequency=frequency)
-    return str("ok")
+
+    return {'status': "ok"}
 
 
-import kafka_manager
-
-_kafka_consumer_result = kafka_manager.get_kafka_consumer(topic="detect_result")
-_kafka_consumer_message = kafka_manager.get_kafka_consumer()
+@app.route('/detect', methods=['GET', 'POST'])
+def detect():
+    import fraud_detector
+    fraud_detector.detect()
 
 
 # 先调用generator
@@ -376,16 +396,17 @@ _kafka_consumer_message = kafka_manager.get_kafka_consumer()
 def refresh():
     # 轮播模块
     import json
+    _kafka_consumer_result = kafka_manager.get_kafka_consumer(topic="detect_result")
+    global _detect_result, _kafka_consumer_message
     _buffer_window = []
-
     _record_count = 0
     _fraud_count = 0
     _normal_count = 0
-    detect_result = {"record_count": None,
-                     "fraud_count": None,
-                     "normal_count": None,
-                     "messages": None,
-                     "prediction": None}
+    _detect_result = {"record_count": None,
+                      "fraud_count": None,
+                      "normal_count": None,
+                      "messages": None,
+                      "prediction": None}
     for message in _kafka_consumer_result:
         result = json.loads(message.value.decode())
         result.replace("\'", "\"")
@@ -401,12 +422,13 @@ def refresh():
                 _normal_count += 1
             _buffer_window.append(result["current_message"])
 
-            detect_result["record_count"] = _record_count
-            detect_result["fraud_count"] = _fraud_count
-            detect_result["normal_count"] = _normal_count
-            detect_result["messages"] = _buffer_window
-            detect_result["prediction"] = label
-            return detect_result
+            _detect_result["record_count"] = _record_count
+            _detect_result["fraud_count"] = _fraud_count
+            _detect_result["normal_count"] = _normal_count
+            _detect_result["messages"] = _buffer_window
+            _detect_result["prediction"] = label
+            print(_detect_result)
+            return json.dumps(_detect_result)
 
 
 if __name__ == '__main__':

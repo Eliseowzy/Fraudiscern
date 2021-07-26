@@ -14,6 +14,10 @@ import random
 
 import pandas as pd
 
+file_name = "users.csv"
+path = os.getcwd() + '/' + file_name
+print(path)
+
 
 def get_authentication_code(code_length):
     """Generate a authentication code with appointed length.
@@ -54,24 +58,26 @@ def add_user(user_dict):
     Returns:
         bool: True -- add the user successfully, False -- add the user unsuccessfully.
     """
-    path = "users.csv"
-    print(os.path)
-    if not os.path.exists("users.csv"):
-        with open(path, 'w') as f:
+
+    # path = pathlib.Path(path)
+    # print(path.exist())
+    # print('aaaaaaaaaaaa' + str(os.path))
+    # print(os.path.exists(path))
+    if not os.path.exists(path):
+        with open(path, 'w', newline='') as f:
             csv_write = csv.writer(f)
-            csv_head = ["username", "mail", "password"]
+            csv_head = ["username", "mail_address", "password"]
             csv_write.writerow(csv_head)
-        with open(path, 'a+') as f:
+        with open(path, 'a+', newline='') as f:
             csv_write = csv.writer(f)
-            data_row = [get_hash_sha1(str(user_dict["user_name"])), get_hash_sha1(str(user_dict["mail"])),
+            data_row = [get_hash_sha1(str(user_dict["user_name"])), get_hash_sha1(str(user_dict["mail_address"])),
                         get_hash_sha1(str(user_dict["password2"]))]
-            print("aaaaaaaaaaaaaa{}".format(data_row))
             csv_write.writerow(data_row)
     else:
-        if _check_user(str(user_dict["user_name"])):
-            with open(path, 'a+') as f:
+        if _check_user(get_hash_sha1(str(user_dict["user_name"]))):
+            with open(path, 'a+', newline='') as f:
                 csv_write = csv.writer(f)
-                data_row = [get_hash_sha1(str(user_dict["user_name"])), get_hash_sha1(str(user_dict["mail"])),
+                data_row = [get_hash_sha1(str(user_dict["user_name"])), get_hash_sha1(str(user_dict["mail_address"])),
                             get_hash_sha1(str(user_dict["password2"]))]
                 csv_write.writerow(data_row)
                 return True
@@ -89,11 +95,26 @@ def _check_user(user_name):
         bool: True -- the user exists in the register file. False -- the user not exists in the register file.
     """
 
-    df = pd.read_csv("users.csv")
-    for row in df.iterrows():
-        if int(bin(user_name)) ^ int(bin(row[0])):
+    df = pd.read_csv(path)
+    for _, row in df.iterrows():
+        if user_name != row[0]:
+            # print(row[1])
             continue
         else:
+            # print(row[1])
             return False
     return True
 
+
+def log_in(user_name, password):
+    df = pd.read_csv(path)
+    for _, row in df.iterrows():
+        if get_hash_sha1(user_name) != row[0]:
+            # print(row[1])
+            continue
+        else:
+            # print(row[1])
+            if get_hash_sha1(password) == row[2]:
+                return True
+            return False
+    return False
