@@ -84,7 +84,7 @@ def create_file(hdfs_path, data_set=None, overwrite=False, permission=None, bloc
 
 
 def synchronize_file(hdfs_path, local_path, n_thread=3):
-    """Synchromize a local file on HDFS.
+    """Synchronize a local file on HDFS.
 
     Args:
         hdfs_path (str): 

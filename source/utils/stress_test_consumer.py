@@ -5,7 +5,7 @@
 @author: Wang Zhiyi
 @file: stress_test_consumer.py
 @time: 7/13/2021
-@version:
+@version: 1.0
 """
 
 import json

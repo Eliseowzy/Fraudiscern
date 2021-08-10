@@ -5,7 +5,7 @@
 @author: Wang Zhiyi
 @file: kafka_manager.py
 @time: 7/4/2021
-@version:
+@version: 1.0
 """
 import json
 

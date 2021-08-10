@@ -5,7 +5,7 @@
 @author: 
 @file: time_stamp.py
 @time: 7/13/2021
-@version:
+@version: 1.0
 """
 import time
 

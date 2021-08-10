@@ -5,7 +5,7 @@
 @author: Zhang Siyu, Wang Zhiyi
 @file: fraud_detector.py
 @time: 7/13/2021
-@version: v1.1
+@version: 1.1
 """
 
 import json

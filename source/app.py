@@ -84,7 +84,7 @@ def _init_preprocess():
     else:
         data_set_before = data_sampler.vectorize(data_set=_data_set, target_name='is_fraud')
         _data_ratio["before_smote"] = data_set_before.groupby('label').count().toPandas()
-        data_set = data_sampler.smote(_data_set)
+        data_set = data_sampler.vectorize(_data_set)
         _data_ratio["after_smote"] = data_set.groupby('label').count().toPandas()
         _is_finished["preprocess_data_set"] = True
         return
@@ -235,11 +235,6 @@ def upload():
             # Compose hdfs_address.
             hdfs_path_to_folder = _hdfs_config["hdfs_root"] + _hdfs_config[
                 "hdfs_folder_name"]
-            # 从服务器缓冲区上传到hdfs, 子线程上传, 目前在flask中执行shell脚本的功能还无法较好的实现
-            # Upload to hdfs
-            # import cmd_helper
-            # cmd_helper.cmd_helper("hadoop fs -put {} {}".format(app.config['UPLOAD_FOLDER'] + file_name,
-            #                                                     hdfs_path_to_folder + '/' + file_name))
             target_path = hdfs_path_to_folder + '/' + file_name
             source_path = app.config['UPLOAD_FOLDER'] + file_name
             hdfs_manager.synchronize_file(hdfs_path=target_path, local_path=source_path)
@@ -328,16 +323,6 @@ def train_model():
                 "hdfs_folder_name"] + '/' + _hdfs_config["hdfs_data_set_name"]
             _classifier_instance.set_data_set(data_set_path=data_set_path, test_proportion=test_ratio)
             _classifier_instance.train_model()
-
-            # hdfs_path_to_folder = _hdfs_config["hdfs_root"] + _hdfs_config["hdfs_folder_name"]
-            # 从服务器缓冲区上传到hdfs, 子线程上传, 目前在flask中执行shell脚本的功能还无法较好的实现
-            # Upload to hdfs
-            # import cmd_helper
-            # cmd_helper.cmd_helper("hadoop fs -put {} {}".format(app.config['UPLOAD_FOLDER'] + file_name,
-            #                                                     hdfs_path_to_folder + '/' + file_name))
-            # target_path = hdfs_path_to_folder + '/' + "roc_curve.png"
-            # source_path = "roc_curve.png"
-            # hdfs_manager.synchronize_file(hdfs_path=target_path, local_path=source_path)
             _classifier_instance.validate_model(validate_method='precision')
             _classifier_instance.validate_model(validate_method='recall')
             _predict_result = {
@@ -375,9 +360,6 @@ def generator():
     # frequency = request.json["frequency"]
     if start_date and end_date and frequency:
         import stress_test_producer, fraud_detector
-        # 是不是并行的？
-        # 多次刷新如何处理？
-
         print("generator started")
         stress_test_producer.stress_test_kafka_producer(start_date=start_date, end_date=end_date, frequency=frequency)
 
@@ -410,8 +392,6 @@ def refresh():
     for message in _kafka_consumer_result:
         result = json.loads(message.value.decode())
         result.replace("\'", "\"")
-        # print(type(result))
-        # print(result)
         result = json.loads(result)
         if result:
             _record_count += 1

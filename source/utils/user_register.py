@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """
-@author:
+@author: Wang Zhiyi
 @file: user_register.py
 @time: 7/15/2021
-@version:
+@version: 1.0
 """
 import csv
 import hashlib
@@ -16,7 +16,7 @@ import pandas as pd
 
 file_name = "users.csv"
 path = os.getcwd() + '/' + file_name
-print(path)
+# print(path)
 
 
 def get_authentication_code(code_length):
