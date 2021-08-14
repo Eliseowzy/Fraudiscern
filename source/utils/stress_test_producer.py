@@ -38,6 +38,8 @@ def stress_test_kafka_producer(start_date="7-1-2012", end_date="7-31-2012", freq
         time.sleep(frequency)
         producer.send(topic='test_data', value=data)
         print("{} has been send".format(data))
+        if _ == 2:
+            break
     return None
 
 

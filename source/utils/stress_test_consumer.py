@@ -17,7 +17,7 @@ _kafka_consumer_result = kafka_manager.get_kafka_consumer(topic="detect_result")
 _kafka_consumer_message = kafka_manager.get_kafka_consumer()
 
 
-def stress_test():
+def stress_test_kafka_consumer():
     _record_count = 0
     _fraud_count = 0
     _normal_count = 0
@@ -49,7 +49,7 @@ def stress_test():
 
 
 def main():
-    print(stress_test())
+    stress_test_kafka_consumer()
 
 
 if __name__ == '__main__':
