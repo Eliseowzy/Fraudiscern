@@ -43,11 +43,12 @@ def _get_label_proportion(data_set, target):
     return label_proportion
 
 
-def extract_numerical_attributes(data_set):
+def extract_numerical_attributes(data_set, path = "hdfs://10.244.35.208:9000/dataset/dataset_1/fraudTest.csv"):
     """Extract numerical attributes. On spark numerical type includes 'IntegerType and DoubleType'.
 
     Args:
-        data_set (pyspark.sql.dataframe.DataFrame): The data set.
+        path (String): The location of dataset.
+        data_set (pyspark.sql.dataframe.DataFrame): The dataset.
 
     Returns:
         dct: A dictionary, (key, values) ~ (attribute, type)
@@ -55,10 +56,10 @@ def extract_numerical_attributes(data_set):
     attributes = data_set.columns
     attributes = attributes[1:]
     attributes_type = {}
-    data_set_schema = data_loader.get_data_set_schema("hdfs://10.244.35.208:9000/dataset/dataset_1/fraudTest.csv")
+    dataset_schema = data_loader.get_data_set_schema(path)
     # print(data_set.schema)
     for attribute in attributes:
-        tmp = str(data_set_schema[attribute]).split(',')
+        tmp = str(dataset_schema[attribute]).split(',')
         if tmp[1] == "IntegerType" or tmp[1] == "DoubleType":
             attributes_type[attribute] = tmp[1]
     return attributes_type
@@ -75,10 +76,9 @@ def vectorize(data_set, target_name):
         pyspark.sql.dataframe.DataFrame: {features: denseVector(), labels: labels of the attributes.}
     """
     # print(_extract_numerical_attributes(data_set))
-    num_cols = extract_numerical_attributes(data_set).keys()
+    num_cols = extract_numerical_attributes(data_set,
+                                            path="hdfs://10.244.35.208:9000/dataset/dataset_1/fraudTest.csv").keys()
     num_cols = list(num_cols)
-    print("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
-    print(num_cols)
     # exit(0)
     # if data_set.select(target_name).distinct().count() != 2 or data_set.select(target_name).distinct().count() != 1:
     #     raise ValueError("Target col must have exactly 2 classes")
@@ -166,8 +166,6 @@ def _smote_sampling(vectorized, k=5, minority_class=1, majority_class=0, percent
     feature = feature.rdd
     feature = feature.map(lambda x: x[0])
     feature = feature.collect()
-    print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
-    print(str(feature))
     feature = np.asarray(feature)
     nbrs = neighbors.NearestNeighbors(n_neighbors=k, algorithm='auto').fit(feature)
     neighbours = nbrs.kneighbors(feature)
@@ -209,8 +207,6 @@ def smote(data_set, target='is_fraud'):
     count_2 = label_proportion[keys[1]]
     ratio = max(count_1, count_2) / min(count_1, count_2)
     new_data_set = None
-    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-    print(str(data_set.columns))
     if ratio > 5:
         # print("start smote")
         new_data_set = _smote_sampling(vectorize(data_set, target_name=target))

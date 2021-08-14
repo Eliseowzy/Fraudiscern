@@ -110,6 +110,16 @@ def load_data_from_hdfs(path):
 
 
 def get_data_set_schema(path):
+    """
+    Extract the schema of the dataset.
+
+    Args:
+        path (string): The location of the dataset.
+
+    Returns:
+        Dictionary: The schema of the dataset.
+
+    """
     _spark_context = _spark_session.sparkContext
     data_set = _spark_session.read.csv(path=path, inferSchema=True, sep=',', header=True)
     return copy.deepcopy(data_set.schema)

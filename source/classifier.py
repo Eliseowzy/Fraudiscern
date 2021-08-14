@@ -90,7 +90,7 @@ class classifier:
         Returns:
             pyspark.ml.classification.*: Model object.
         """
-        # 工厂模式：1. 构造随机森林模型
+        # factory pattern: Compose random forest model
         if self._model_name == "random_forest":
             self._model_name = model_name
             self._model = RandomForestClassifierModel(impurity='gini', trees_count=200,
